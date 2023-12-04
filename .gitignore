@@ -1,4 +1,12 @@
+# pycharm相关文件
 .idea
 
+# python预编译文件
 **/__pycache__/**
+
+# 数据集
+data/
+
+# 模型文件 
+checkpoints/
 
