@@ -6,7 +6,8 @@
 
 # 数据集
 data/
+!data/README.md
 
-# 模型文件 
+# 模型文件
 checkpoints/
 
