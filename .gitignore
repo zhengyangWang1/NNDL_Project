@@ -5,8 +5,10 @@
 **/__pycache__/**
 
 # 数据集
-data/
+data/*
+!data/README.md
 
-# 模型文件 
-checkpoints/
+# 模型文件
+checkpoints/*
+!checkpoints/README.md
 
