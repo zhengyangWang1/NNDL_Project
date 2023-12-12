@@ -13,6 +13,32 @@ conda create -n nndlexp python=3.7.16
 pip install -r requirments
 ```
 
+# 项目结构
+
+```text
+  checkpoints/    # 保存的模型目录
+      m-d_h-m/    # 月日时分命名的模型文件夹
+          config.json     # 模型参数配置文件
+          model.pth       # 模型参数字典，pytorch
+          model_description   # 模型文本描述
+          train.log           # 训练日志 由logging模块记录
+  data/
+      images/         # 训练用图片
+      captions.json   # 训练图片对应文字描述
+  model/
+      decoder/        # 解码器网络
+      encoder/        # 编码器网络
+      model.py        
+  utils/
+      data_loader.py  # 数据加载
+      metrics.py      # 损失计算
+      trainer.py      # 训练循环
+      ...
+  config.json         # 配置文件
+  FinalReport.ipynb   # 结题报告，jupyternotebook形式
+  main.py             # 训练文件，接受命令行参数 返回
+  requirments.txt     # 依赖
+```
 
 
 
@@ -22,11 +48,11 @@ pip install -r requirments
 
 - 数据集 仅用到image和textual descriptions https://github.com/yumingj/DeepFashion-MultiModal
 - 至少实现下列**模型结构**中的两种：
-  - CNN/ ViT整体表示+GRU
-  - CNN/ ViT整体表示+GRU
-  - 网格/区域表示、Transformer编码器+Transformer解码器
-  - 网格/区域表示、图网络+ Transformer解码器
-  - 视觉Transformer+Transformer解码器
+  -[ ] CNN/ ViT整体表示+GRU 
+  -[ ] 网格/区域表示、自注意力+注意力
+  -[ ] 网格/区域表示、Transformer编码器+Transformer解码器
+  -[ ] 网格/区域表示、图网络+ Transformer解码器
+  -[ ] 视觉Transformer+Transformer解码器
 - 至少实现两种**评测标准**
   - METEOR、ROUGE-L、CIDEr-D、SPICE
 
