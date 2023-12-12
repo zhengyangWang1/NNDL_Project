@@ -48,7 +48,7 @@ pip install -r requirments
 
 - 数据集 仅用到image和textual descriptions https://github.com/yumingj/DeepFashion-MultiModal
 - 至少实现下列**模型结构**中的两种：
-  -[ ] CNN/ ViT整体表示+GRU 
+  -[ ] CNN/ ViT整体表示+GRU
   -[ ] 网格/区域表示、自注意力+注意力
   -[ ] 网格/区域表示、Transformer编码器+Transformer解码器
   -[ ] 网格/区域表示、图网络+ Transformer解码器
