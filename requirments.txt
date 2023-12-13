@@ -2,3 +2,6 @@ numpy==1.21.6
 torchinfo==1.8.0
 torch==1.13.1
 torchvision==0.14.1
+nltk==3.8.1
+Pillow==9.5.0
+
