@@ -177,4 +177,3 @@ def dataloader(data_dir, batch_size, workers=4):
 if __name__ == '__main__':
     data_process()
     train_loader, test_loader = dataloader('data/deepfashion-mini', 128)
-
