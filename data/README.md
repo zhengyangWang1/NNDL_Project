@@ -1,7 +1,17 @@
 
 ## 说明
 
+### data文件夹结构
+
+```text
+data/
+    deepfashion-mini/
+    deepfashion/
+```
+
+
 ### 数据处理：
+
 原始数据为图片和json文件，处理为
 data = {'IMAGES': img_paths, 'CAPTIONS': enc_captions}, 前者为图片路径, 后者为图片描述(转换为向量)
 

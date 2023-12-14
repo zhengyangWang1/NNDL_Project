@@ -16,10 +16,15 @@ from torchvision import transforms
 data_process: 进行数据预处理
 data_loader: 将预处理的数据定义为train_loader和test_loader
 """
+import nltk
+# nltk.download('punkt')
 
-
-# 将段落文本分割成句子
 def split_into_sentences(text):
+    """
+    将段落文本分割成句子
+    :param text:
+    :return:
+    """
     sentences = sent_tokenize(text)
     return sentences
 
@@ -33,7 +38,6 @@ def text_to_sequence(sentence, vocab):
 
 def data_process(data_file='data/deepfashion-mini', min_word_freq=5):
     """
-
     :param data_file: 数据集根目录(输入数据：12694张图片，训练集和测试集的json文件(10155, 2538)，json中包含{图片名：描述})
     :param min_word_freq: 构建词汇表时，词汇至少出现的次数
     :return: none (把处理好的数据存入json文件：train_data.json和test_data.json)
@@ -116,7 +120,6 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5):
 class CustomDataset(Dataset):
     def __init__(self, data_file, transform=None):
         """
-
         :param data_file: 预处理好的数据文件路径
         :param transform: 需要进行的图片预处理操作
         """
@@ -146,7 +149,6 @@ class CustomDataset(Dataset):
 
 def dataloader(data_dir, batch_size, workers=4):
     """
-
     :param data_dir: 数据集根目录
     :param batch_size: 批处理量
     :param workers: 进程数，默认为4
@@ -176,5 +178,14 @@ def dataloader(data_dir, batch_size, workers=4):
 
 if __name__ == '__main__':
     data_process()
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 128)
+    train_loader, test_loader = dataloader('data/deepfashion-mini', 64)
+
+    # 测试
+    for batch_data in train_loader:
+        inputs, labels = batch_data
+
+    # train_iter= iter(train_loader)
+    # batch_data= next(train_iter)
+    # image,caption= batch_data
+    # print(image,caption)
 
