@@ -3,6 +3,7 @@ import json
 import torch
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 from collections import Counter
 from nltk.tokenize import sent_tokenize, word_tokenize
 from torch.utils.data import Dataset
@@ -38,17 +39,6 @@ def text_to_sequence(sentence, vocab):
     words = word_tokenize(sentence.lower())  # 分词并转换为小写
     sequence = [vocab['<start>']] + [vocab.get(word, vocab['<unk>']) for word in words] + [vocab['<end>']]
     return sequence
-
-
-# 图片填充函数
-def pad_image_to_square(image):
-    width, height = image.size
-    max_dim = max(width, height)
-
-    new_image = Image.new("RGB", (max_dim, max_dim), color="white")
-    new_image.paste(image, ((max_dim - width) // 2, (max_dim - height) // 2))
-
-    return new_image
 
 
 def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
@@ -198,7 +188,8 @@ def dataloader(data_dir, batch_size, workers=4):
 
     # 定义图像预处理方法
     transform = transforms.Compose([
-        transforms.Lambda(lambda img: pad_image_to_square(img)),
+        transforms.Pad(padding=(175, 0), padding_mode='edge'),
+        transforms.CenterCrop(1100),
         transforms.Resize(224),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -214,8 +205,6 @@ def dataloader(data_dir, batch_size, workers=4):
     test_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
 
-    print('---------- Data load successfully! ----------')
-
     return train_loader, test_loader
 
 
@@ -228,3 +217,21 @@ if __name__ == '__main__':
     for batch_data in train_loader:
         # print(batch_data)
         inputs, labels = batch_data
+
+    # ------------------------------------------------------------------
+    # # 图片处理测试
+    # custom_transform = transforms.Compose([
+    #     transforms.Pad(padding=(175, 0), padding_mode='edge'),
+    #     transforms.CenterCrop(1100),
+    #     transforms.Resize(224),
+    #     transforms.ToTensor(),
+    # ])
+    #
+    # image = Image.open("data/deepfashion-mini/images/MEN-Denim-id_00000080-01_7_additional.jpg")
+    #
+    # transformed_image = custom_transform(image)
+    #
+    # plt.imshow(transformed_image.permute(1, 2, 0))  # 将Tensor转换为numpy数组并显示
+    # plt.title('Padded Image')
+    #
+    # plt.show()
