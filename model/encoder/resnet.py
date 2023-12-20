@@ -32,6 +32,6 @@ if __name__ == '__main__':
     for param in m.parameters():
         # print(param)
         pass
-    print(m)
+    # print(m)
     # summary总结
     s = torchinfo.summary(m, input_size=(1, 3, 224, 224), device='cpu')

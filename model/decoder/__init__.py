@@ -1,1 +1,1 @@
-from attentiongru import Attention
+from gru import Attention
