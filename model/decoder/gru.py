@@ -113,7 +113,6 @@ if __name__ == '__main__':
     train_data, test_data = dataloader('data/deepfashion-mini', 8, workers=0)
 
     # 定义损失函数和优化器
-    criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     loss_fn = PackedCrossEntropyLoss()
 
@@ -122,11 +121,11 @@ if __name__ == '__main__':
         running_loss = 0.0
         for i, (imgs, caps, caplens) in enumerate(train_data):
             # 获取输入数据
-            imgs = encoder(imgs)
-            predictions, sorted_captions, lengths, sorted_cap_indices = decoder(imgs, caps, caplens)
-
+            grid = encoder(imgs)
+            predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
             loss = loss_fn(predictions, sorted_captions[:, 1:], lengths)
 
             loss.backward()
-
             optimizer.step()
+
+        print(f'')
