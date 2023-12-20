@@ -77,6 +77,7 @@ class GRUDecoder(nn.Module):
             cap = cap_embeds[:real_batch_size, step, :]
             hidden_stat = hidden_state[:, :real_batch_size, :].contiguous()
 
+            # 使用真实数据的img，cap作为输入，而不是使用模型自己的预测结果(Teacher Forcing模式)
             x = torch.cat((img, cap), dim=-1).unsqueeze(0)  # 在第0维增加时间步维度
 
             # 前向传播过程
