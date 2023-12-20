@@ -167,12 +167,18 @@ class CustomDataset(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        caplen = len(self.data['CAPTIONS'][i])
-        if caplen > self.max_len:
-            print(self.data['CAPTIONS'][i])
-        caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len + 2 - caplen))
+        # print(self.data['CAPTIONS'][i])
 
-        return img, caption
+        # 填充文本描述的长度
+        caplen = len(self.data['CAPTIONS'][i])
+        # if caplen > self.max_len:
+            # print(self.data['CAPTIONS'][i])
+
+        caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len + 2 - caplen))
+        # # TODO: 使用packed_sequence处理
+        # caption = self.data['CAPTIONS'][i]
+
+        return img, caption, caplen
 
 
 def dataloader(data_dir, batch_size, workers=4):
@@ -202,8 +208,12 @@ def dataloader(data_dir, batch_size, workers=4):
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
 
+
+
     test_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
+
+
 
     return train_loader, test_loader
 

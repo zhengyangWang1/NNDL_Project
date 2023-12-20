@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torchinfo
 
-from model.encoder import ResNetEncoder
+
 
 
 class Model(nn.Module):
@@ -15,17 +15,18 @@ class Model(nn.Module):
         self.decoder = decoder
         pass
 
-    def forward(self,x):
+    def forward(self, x):
+
         """
         编解码器的大致架构
         :param x:
         :return:
         """
-        encoded= self.encoder(x)
-        decoded= self.decoder(encoded)
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+
         return decoded
 
 
 if __name__ == '__main__':
-
     pass
