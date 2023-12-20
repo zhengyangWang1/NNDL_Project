@@ -16,6 +16,7 @@ class Model(nn.Module):
         pass
 
     def forward(self, x):
+
         """
         编解码器的大致架构
         :param x:
@@ -23,6 +24,7 @@ class Model(nn.Module):
         """
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
+
         return decoded
 
 
