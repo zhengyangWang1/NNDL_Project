@@ -3,9 +3,9 @@ import torch
 import numpy as np
 import torchinfo
 from torch.nn.utils.rnn import pack_padded_sequence
-from model.encoder.resnet import ResNetEncoder
-from model.model import CNNRNNStruct
-from utils.data_loader import dataloader
+# from model.encoder.resnet import ResNetEncoder
+# from model.model import CNNRNNStruct # 报错
+# from utils.data_loader import dataloader
 import torch.optim as optim
 
 

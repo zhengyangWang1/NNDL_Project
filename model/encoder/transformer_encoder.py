@@ -7,35 +7,39 @@ from torchvision import models
 class TransformerEncoder(nn.Module):
     def __init__(self,
                  grid_embed_size,
-                 ):
+                 num_head,
+                 num_encoder_layer=6, ):
         super(TransformerEncoder, self).__init__()
         # CNN网格表示生成 采用方案1的resnet101作为网格表示提取器，返回网格表示 (batchsize,2048,7,7)
         # resnet101 = models.resnet101(models.ResNet101_Weights.DEFAULT) # 0.16写法
         resnet101 = models.resnet101(pretrained=True)
-        self.grid_representation_extractor = nn.Sequential(*(list(resnet101.children())[:-2]))
+        # TODO 修改下载的权重的保存位置 现在为/root/.cache/torch/hub/checkpoints/resnet101-63fe2227.pth
+        self.grid_extract = nn.Sequential(*(list(resnet101.children())[:-2]))
 
         # 图像网格embedding
-        # self.embed = nn.Embedding(vocab_size, embed_size) 词向量的embedding方法
-        # 全连接实现或者
-        self.grid_embed = GridEmbedding()
-        # positional encoding 不需要
+        self.grid_embed = GridEmbedding(grid_embed_size)
+        self.flatten = nn.Flatten(2, 3)
 
         # transformer
         # 输入形状 batchsize,seq,feature 比如 batchsize,2048,512
         # d_model 是特征数量 nhead是多头自注意力的头数
-        self.encoder_layer = nn.TransformerEncoderLayer(d_model=196, nhead=4, batch_first=True)
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=grid_embed_size,
+                                                        nhead=num_head,
+                                                        batch_first=True)
         # 堆叠多层transformer encoder
-        self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6)
+        self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_encoder_layer)
 
-        # repeat
-
-    def forward(self, image):
-        """
-        :param image: (batchsize,3,224,224)
+    def forward(self, img, img_mask=None):
+        """TODO img_mask?
+        :param img: (batchsize,3,224,224)
         :return: (batchsize,2048,196)
         """
-        grid_representation = self.grid_extract(image)
+        # B*3*224*224 -> B*2048*7*7
+        grid_representation = self.grid_extract(img)
+        grid_representation = self.flatten(grid_representation)
+        # B*2048*7*7 -> B*2048*64
         grid_embedding = self.grid_embed(grid_representation)
+        # B*2048*64 -> B*2048*64
         encoded = self.transformer_encoder(grid_embedding)
         return encoded
 
@@ -43,7 +47,7 @@ class TransformerEncoder(nn.Module):
 class GridEmbedding(nn.Module):
     def __init__(self, grid_embed_size=64):
         super(GridEmbedding, self).__init__()
-        # 全连接和自适应两种方式
+        # 全连接和自适应两种方式 自适应参数少但是不适合针对扩大情况
         self.fc1 = nn.Linear(7 * 7, grid_embed_size)
         # self.relu=nn.ReLU()
         # self.fc2 = nn.Linear(256, 512)
@@ -53,7 +57,6 @@ class GridEmbedding(nn.Module):
     def forward(self, grid_features):
         """
         任务是输入图像的网格表示并返回图像网格表示的embedding向量
-        batchsize,2048,7,7 -> batchsize,2048,14,14 -> batchsize,2048,196
         :return:
         """
         # grid_features=grid_features.reshape(grid_features.shape[0],grid_features.shape[1],-1)

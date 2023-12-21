@@ -1,11 +1,8 @@
-# 可能区分为编码器和解码器，也可能有外部调用
-# 存放模型的参数
-# 示例可修改
 import torch
 import torch.nn as nn
 import torchinfo
-from . import TransformerEncoder, TransformerDecoder
-from . import ResNetEncoder, GRUDecoder
+from .encoder import TransformerEncoder, ResNetEncoder
+from .decoder import TransformerDecoder, GRUDecoder
 
 
 class CNNRNNStruct(nn.Module):
@@ -21,14 +18,47 @@ class CNNRNNStruct(nn.Module):
         return predictions, sorted_captions, lengths, sorted_cap_indices
 
 
-class CNNTransformerStruct(nn.Module):
+class CNNTransformerModel(nn.Module):
+    def __init__(self,
+                 vocab_size,
+                 embed_size=64,
+                 num_head=8,
+                 num_encoder_layer=6,
+                 num_decoder_layer=6, ):
+        """
+        :param vocab_size: 文本词典的大小
+        :param embed_size: embedding向量维度 必须能够被num_head整除
+        :param num_head: 多头注意力 头的数量
+        :param num_encoder_layer: transformer编码器层数量
+        :param num_decoder_layer: transformer解码器层数量
+        """
+        super(CNNTransformerModel, self).__init__()
+        assert embed_size % num_head == 0, "embedding_size不能被num_head整除"
+        self.encoder = TransformerEncoder(embed_size,
+                                          num_head,
+                                          num_encoder_layer)
+        self.decoder = TransformerDecoder(vocab_size,
+                                          embed_size,
+                                          num_head,
+                                          num_decoder_layer)
+
+    def forward(self, image, text):
+        """
+        :param image: B*3*224*224 torch浮点张量
+        :param text: B*seq_length torch整型张量
+        :return:
+        """
+        # B*3*224*224 -> B*2048*embed_size
+        img_encoded = self.encoder(image)
+        # B*2048*embed_size,(B*seq_length->B*seq_length*embed_size) -> B*seq_length*vocab_size 词的onehot向量
+        decoded = self.decoder(img_encoded, text)
+        return decoded
+
+
+class Generator(nn.Module):
     def __init__(self):
-        super(CNNTransformerStruct, self).__init__()
-        self.encoder = TransformerEncoder()
-        self.decoder = TransformerDecoder()
-
-    def forward(self):
-
+        super(Generator, self).__init__()
+        # TODO 文本生成器类，实现 贪婪搜索 和 beam搜索
 
 
 if __name__ == '__main__':

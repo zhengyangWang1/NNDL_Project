@@ -5,4 +5,4 @@ from model.encoder.transformer_encoder import TransformerEncoder
 from model.decoder.gru import GRUDecoder, PackedCrossEntropyLoss
 from model.decoder.transformer_decoder import TransformerDecoder
 
-from model.model import CNNRNNStruct,CNNTransformerStruct
+from model.model import CNNRNNStruct,CNNTransformerModel
