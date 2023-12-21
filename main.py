@@ -9,7 +9,7 @@ from model import ResNetEncoder, GRUDecoder, PackedCrossEntropyLoss
 if __name__ == '__main__':
 
     data_dir = 'data/deepfashion-mini'
-    last_checkpoint = 'checkpoint/last_cnn_gru.ckpt'
+    last_checkpoint = 'checkpoints/last_cnn_gru.ckpt'
 
     vocab_path = os.path.join(data_dir, 'vocab.json')
     with open(vocab_path, 'r') as f:
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     start_epoch = 0
-    checkpoint = last_checkpoint
+    checkpoint = None
     if checkpoint is None:
         # 定义模型
         encoder = ResNetEncoder()
