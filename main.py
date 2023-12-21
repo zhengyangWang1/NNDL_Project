@@ -45,8 +45,11 @@ if __name__ == '__main__':
             imgs = imgs.to(device)
             caps = caps.to(device)
             caplens = caplens.to(device)
-            grid = encoder(imgs)
-            predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
+            #
+            # grid = encoder(imgs)
+            # predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
+            #
+            predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs,caps,caplens)
             loss = loss_fn(predictions, sorted_captions[:, 1:], lengths)
             num_sample += imgs.shape[0]
             running_loss += loss * imgs.shape[0]
@@ -54,12 +57,12 @@ if __name__ == '__main__':
             optimizer.step()
             if i % 50 == 0:
                 print('batch: ', i)
-            state = {
-                'epoch': epoch,
-                'step': i,
-                'model': model,
-                'optimizer': optimizer
-            }
-            torch.save(model, last_checkpoint)
+        state = {
+            'epoch': epoch,
+            # 'step': i,
+            'model': model,
+            'optimizer': optimizer
+        }
+        torch.save(model, last_checkpoint)
         average_loss = running_loss / num_sample
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {average_loss:.4f}")
