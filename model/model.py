@@ -4,24 +4,31 @@
 import torch
 import torch.nn as nn
 import torchinfo
+from . import TransformerEncoder, TransformerDecoder
+from . import ResNetEncoder, GRUDecoder
 
 
-class Model(nn.Module):
+class CNNRNNStruct(nn.Module):
     def __init__(self, encoder, decoder):
-        super(Model, self).__init__()
+        super(CNNRNNStruct, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
         pass
 
     def forward(self, imgs, caps, caplens):
-        """
-        编解码器的大致架构
-        :param x:
-        :return:
-        """
         grid = self.encoder(imgs)
         predictions, sorted_captions, lengths, sorted_cap_indices = self.decoder(grid, caps, caplens)
         return predictions, sorted_captions, lengths, sorted_cap_indices
+
+
+class CNNTransformerStruct(nn.Module):
+    def __init__(self):
+        super(CNNTransformerStruct, self).__init__()
+        self.encoder = TransformerEncoder()
+        self.decoder = TransformerDecoder()
+
+    def forward(self):
+
 
 
 if __name__ == '__main__':
