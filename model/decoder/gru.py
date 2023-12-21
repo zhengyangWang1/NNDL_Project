@@ -62,7 +62,7 @@ class GRUDecoder(nn.Module):
 
         # 输入序列长度减1，因为最后一个时刻不需要预测下一个词
         lengths = sorted_cap_lens.cpu().numpy() - 1
-        predictions = torch.zeros(batch_size, lengths[0], self.fc.out_features)  # batch_size*max_length*out_size
+        predictions = torch.zeros(batch_size, lengths[0], self.fc.out_features).to(captions.device)  # batch_size*max_length*out_size
 
         # 对数据进行embedding操作
         img = image_code.reshape(image_code.size(0), -1)  # (batch_size, 2048*7*7)
@@ -81,7 +81,7 @@ class GRUDecoder(nn.Module):
             x = torch.cat((img, cap), dim=-1).unsqueeze(0)  # 在第0维增加时间步维度
 
             # 前向传播过程
-            output, _ = self.gru(x, hidden_stat)
+            output, hidden_state = self.gru(x, hidden_stat)
             pred = self.fc(self.dropout(output.squeeze(0)))
 
             predictions[:real_batch_size, step, :] = pred
@@ -107,25 +107,6 @@ class PackedCrossEntropyLoss(nn.Module):
 
 
 if __name__ == '__main__':
-    encoder = ResNetEncoder()
-    decoder = GRUDecoder(2048, 512, 300, 512, num_layers=1)
-    model = Model(encoder, decoder)
-    train_data, test_data = dataloader('data/deepfashion-mini', 8, workers=0)
 
-    # 定义损失函数和优化器
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
-    loss_fn = PackedCrossEntropyLoss()
+    pass
 
-    # 迭代训练
-    for epoch in range(5):  # num_epochs 为训练轮数
-        running_loss = 0.0
-        for i, (imgs, caps, caplens) in enumerate(train_data):
-            # 获取输入数据
-            grid = encoder(imgs)
-            predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
-            loss = loss_fn(predictions, sorted_captions[:, 1:], lengths)
-
-            loss.backward()
-            optimizer.step()
-
-        print(f'')
