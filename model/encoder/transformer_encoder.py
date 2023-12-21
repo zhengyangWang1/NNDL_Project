@@ -20,7 +20,7 @@ class TransformerEncoder(nn.Module):
         # transformer
         # 输入形状 batchsize,seq,feature 比如 batchsize,2048,512
         # d_model 是特征数量 nhead是多头自注意力的头数
-        self.encoder_layer = nn.TransformerEncoderLayer(d_model=512, nhead=8, batch_first=True)
+        self.encoder_layer = nn.TransformerEncoderLayer(d_model=196, nhead=4, batch_first=True)
         # 堆叠多层transformer encoder
         self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=6)
 
@@ -29,7 +29,7 @@ class TransformerEncoder(nn.Module):
     def forward(self, image):
         """
         :param image: (batchsize,3,224,224)
-        :return: (batchsize,2048,512)
+        :return: (batchsize,2048,196)
         """
         grid_representation = self.grid_extract(image)
         grid_embedding = self.grid_embed(grid_representation)
@@ -40,22 +40,24 @@ class TransformerEncoder(nn.Module):
 class GridEmbedding(nn.Module):
     def __init__(self):
         super(GridEmbedding, self).__init__()
-        self.fc1=nn.Linear(49,256)
-        self.relu=nn.ReLU()
-        self.fc2 = nn.Linear(256, 512)
+        # self.fc1=nn.Linear(49,256)
+        # self.relu=nn.ReLU()
+        # self.fc2 = nn.Linear(256, 512)
+        self.aap2d = nn.AdaptiveAvgPool2d((14, 14))
+        self.flatten = nn.Flatten(2, 3)
         pass
 
-    def forward(self,grid_features):
+    def forward(self, grid_features):
         """
         任务是输入图像的网格表示并返回图像网格表示的embedding向量
-        batchsize,2048,7,7 -> batchsize,2048,512
+        batchsize,2048,7,7 -> batchsize,2048,14,14 -> batchsize,2048,196
         :return:
         """
-        grid_features=grid_features.reshape(grid_features.shape[0],grid_features.shape[1],-1)
-        # 型转变化为 batchsize，2048，49
-        fc1out=self.fc1(grid_features)
-        fc1out = self.relu(fc1out)
-        grid_embedding = self.fc2(fc1out)
+        # grid_features=grid_features.reshape(grid_features.shape[0],grid_features.shape[1],-1)
+        # fc1out=self.fc1(grid_features)
+        # fc1out = self.relu(fc1out)
+        # grid_embedding = self.fc2(fc1out)
+        grid_embedding = self.flatten(self.aap2d(grid_features))
         return grid_embedding
 
 
@@ -94,8 +96,8 @@ if __name__ == '__main__':
     # torchinfo.summary(encoder_layer, input_data=src)
 
     # 测试编码器
-    model= TransformerEncoder()
-    image = torch.rand(32, 3, 224,224)
+    model = TransformerEncoder()
+    image = torch.rand(32, 3, 224, 224)
     torchinfo.summary(model, input_data=image)
 
 """
