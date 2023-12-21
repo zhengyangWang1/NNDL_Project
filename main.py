@@ -3,7 +3,7 @@ import os
 import json
 import torch
 from utils.data_loader import dataloader
-from model import Model
+from model import CNNRNNStruct
 from model import ResNetEncoder, GRUDecoder, PackedCrossEntropyLoss
 
 if __name__ == '__main__':
@@ -22,7 +22,7 @@ if __name__ == '__main__':
         # 定义模型
         encoder = ResNetEncoder()
         decoder = GRUDecoder(2048, 256, len(vocab), 256, num_layers=1)
-        model = Model(encoder, decoder)
+        model = CNNRNNStruct(encoder, decoder)
     else:
         checkpoint = torch.load(checkpoint)
         start_epoch = checkpoint['epoch']
