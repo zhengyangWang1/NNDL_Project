@@ -9,7 +9,7 @@ from model import ResNetEncoder, GRUDecoder, PackedCrossEntropyLoss
 if __name__ == '__main__':
 
     data_dir = 'data/deepfashion-mini'
-    last_checkpoint = 'checkpoint/last_cnn_gru.ckpt'
+    last_checkpoint = 'checkpoints/last_cnn_gru.ckpt'
 
     vocab_path = os.path.join(data_dir, 'vocab.json')
     with open(vocab_path, 'r') as f:
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     start_epoch = 0
-    checkpoint = last_checkpoint
+    checkpoint = None
     if checkpoint is None:
         # 定义模型
         encoder = ResNetEncoder()
@@ -32,7 +32,6 @@ if __name__ == '__main__':
     # 定义损失函数和优化器
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     loss_fn = PackedCrossEntropyLoss().to(device)
-
     model.to(device)
     model.train()
     # 迭代训练
@@ -46,8 +45,11 @@ if __name__ == '__main__':
             imgs = imgs.to(device)
             caps = caps.to(device)
             caplens = caplens.to(device)
-            grid = encoder(imgs)
-            predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
+            #
+            # grid = encoder(imgs)
+            # predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
+            #
+            predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs,caps,caplens)
             loss = loss_fn(predictions, sorted_captions[:, 1:], lengths)
             num_sample += imgs.shape[0]
             running_loss += loss * imgs.shape[0]
@@ -55,15 +57,12 @@ if __name__ == '__main__':
             optimizer.step()
             if i % 50 == 0:
                 print('batch: ', i)
-
-            state = {
-                'epoch': epoch,
-                'step': i,
-                'model': model,
-                'optimizer': optimizer
-            }
-            torch.save(model, last_checkpoint)
+        state = {
+            'epoch': epoch,
+            # 'step': i,
+            'model': model,
+            'optimizer': optimizer
+        }
+        torch.save(model, last_checkpoint)
         average_loss = running_loss / num_sample
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {average_loss:.4f}")
-
-
