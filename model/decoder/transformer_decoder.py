@@ -80,9 +80,9 @@ if __name__ == '__main__':
     # torchinfo.summary(transformer_decoder, input_data=(tgt, memory))
 
     # 测试自己的模型
-    model = TransformerDecoder(vocab_size=128, embed_size=196)
+    model = TransformerDecoder(vocab_size=110, embed_size=64,num_head=8)
     # model = TransformerDecoder(vocab_size=128,embed_size=512)
     # img_encoded = torch.rand(20, 2048, 512)
-    img_encoded = torch.rand(20, 1024, 196)
+    img_encoded = torch.rand(20, 1024, 64)
     text = torch.ones(20, 32).to(torch.int)
     torchinfo.summary(model, input_data=(img_encoded, text))
