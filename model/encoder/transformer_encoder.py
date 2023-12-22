@@ -32,7 +32,7 @@ class TransformerEncoder(nn.Module):
     def forward(self, img, img_mask=None):
         """TODO img_mask?
         :param img: (batchsize,3,224,224)
-        :return: (batchsize,2048,196)
+        :return: (batchsize,2048,embed_size)
         """
         # B*3*224*224 -> B*2048*7*7
         grid_representation = self.grid_extract(img)

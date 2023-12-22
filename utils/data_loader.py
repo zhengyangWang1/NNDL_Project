@@ -20,27 +20,11 @@ import string
 data_process: 进行数据预处理
 data_loader: 将预处理的数据定义为train_loader和test_loader
 """
+
 import nltk
 
 
 # nltk.download('punkt')
-
-def split_into_sentences(text):
-    """
-    将段落文本分割成句子
-    :param text:
-    :return:
-    """
-    sentences = sent_tokenize(text)
-    return sentences
-
-
-# 单词分词并转换为词汇表中的索引
-def text_to_sequence(sentence, vocab):
-    words = word_tokenize(sentence.lower())  # 分词并转换为小写
-    sequence = [vocab['<start>']] + [vocab.get(word, vocab['<unk>']) for word in words] + [vocab['<end>']]
-    return sequence
-
 
 def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
     """
@@ -51,7 +35,7 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
     :return: none 把处理好的数据存入json文件：train_data.json和test_data.json，同时将词典存为vocab.json
     """
     # TODO 统计
-    # 读取数据集 数据集格式 name.jpg : captions 处理为->
+    # 读取数据集 数据集格式 字典name.jpg:captions 处理为->
     train_json = os.path.join(data_file, 'train_captions.json')  # 训练集描述路径
     with open(train_json, 'r', encoding='utf-8') as train_file:
         train_data = json.load(train_file)
@@ -63,69 +47,55 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
     # 将描述转化为列表 dict_values() -> list   py3.7之后的版本中是有顺序的
     train_descriptions = list(train_data.values())
 
-    # 统计词频
+    # 统计词频 TODO 大小写
     word_counts = Counter()
-    punctuation = string.punctuation
+    punctuation = [',', '.']
     for text in train_descriptions:
         for char in punctuation:
             text = text.replace(char, f" {char} ")
         words = text.split()
+        words = [word.lower() for word in words]
         word_counts.update(words)
 
-    # 过滤词汇
+    # 过滤最小词频词汇 将符合要求的转换为单词列表
     filtered_words = [word for word, freq in word_counts.items() if freq >= min_word_freq]
 
-    # 建立词汇表
+    # 建立词汇表 单词:索引 w2i
     vocab = {word: idx + 4 for idx, word in enumerate(filtered_words)}  # 从4开始构建词汇表，0, 1, 2, 3用于特殊标记
     vocab['<pad>'] = 0  # 填充符号
     vocab['<start>'] = 1  # 开始符号
     vocab['<end>'] = 2  # 结束符号
     vocab['<unk>'] = 3  # 未知词汇
 
-    train_sequences = []
-    test_sequences = []
-    train_img_paths = []
-    test_img_paths = []
+    def process(data):
+        """返回处理好的图像描述列表和文本列表 长度为N和N*captions_per_image"""
+        img_paths = []
+        sequences = []
+        for img, description in data.items():
+            # img 图像路径字符串 description 描述文本长字符串
+            img_paths.append(os.path.join(data_file, 'images', img))
 
-    for img, description in train_data.items():
-        image_data = os.path.join(data_file, 'images')  # 图片路径
-        train_img_paths.append(os.path.join(image_data, img))
+            # 处理文本
+            sentences = sent_tokenize(description)  # 将段落描述分为句子
+            if len(sentences) < captions_per_image:
+                # 如果该图片对应的描述数量不足，则补足
+                for _ in range(captions_per_image - len(sentences)):
+                    sentences.append(random.choice(sentences))
+                captions = sentences
+            else:
+                # 如果该图片对应的描述数量超了，则随机采样
+                captions = random.sample(sentences, k=captions_per_image)
 
-        # 如果该图片对应的描述数量不足，则补足
-        sentences = split_into_sentences(description)  # 将段落描述分为句子
-        if len(sentences) < captions_per_image:
-            for _ in range(captions_per_image - len(sentences)):
-                sentences.append(random.choice(sentences))
-            captions = sentences
-
-        # 如果该图片对应的描述数量超了，则随机采样
-        else:
-            captions = random.sample(sentences, k=captions_per_image)
-
-        for sentence in captions:
             # 对文本描述进行编码
-            sequence = text_to_sequence(sentence, vocab)
-            train_sequences.append(sequence)
+            for sentence in captions:
+                words = word_tokenize(sentence.lower())  # 转换为小写并分词
+                sequence = [vocab['<start>']] + [vocab.get(word, vocab['<unk>']) for word in words] + [
+                    vocab['<end>']]  # 前面加上start 后面加上end 中间没有查找到的转换为unk
+                sequences.append(sequence)
+        return img_paths, sequences
 
-    for img, description in test_data.items():
-        image_data = os.path.join(data_file, 'images')  # 图片路径
-        test_img_paths.append(os.path.join(image_data, img))
-
-        # 如果该图片对应的描述数量不足，则补足
-        sentences = split_into_sentences(description)  # 将段落描述分为句子
-        if len(sentences) < captions_per_image:
-            for _ in range(captions_per_image - len(sentences)):
-                sentences.append(random.choice(sentences))
-            captions = sentences
-
-        # 如果该图片对应的描述数量超了，则随机采样
-        else:
-            captions = random.sample(sentences, k=captions_per_image)
-
-        for sentence in captions:
-            # 对文本描述进行编码
-            sequence = text_to_sequence(sentence, vocab)
-            test_sequences.append(sequence)
+    train_img_paths, train_sequences = process(train_data)
+    test_img_paths, test_sequences = process(test_data)
 
     train_data = {'IMAGES': train_img_paths, 'CAPTIONS': train_sequences}
     test_data = {'IMAGES': test_img_paths, 'CAPTIONS': test_sequences}
@@ -135,9 +105,9 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
         json.dump(vocab, vocab_file, indent=4)
     # 存储数据
     with open(os.path.join(data_file, 'train_data.json'), 'w') as train_file:
-        json.dump(train_data, train_file, indent=4)
+        json.dump(train_data, train_file, indent=2)
     with open(os.path.join(data_file, 'test_data.json'), 'w') as test_file:
-        json.dump(test_data, test_file, indent=4)
+        json.dump(test_data, test_file, indent=2)
 
     print('---------- Data preprocess successfully! ----------')
 
@@ -222,7 +192,7 @@ def dataloader(data_dir, batch_size, workers=4):
 
 
 if __name__ == '__main__':
-
+    # 在项目根目录运行
     data_process()
     train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
 
