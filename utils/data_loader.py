@@ -53,6 +53,7 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
         for char in punctuation:
             text = text.replace(char, f" {char} ")
         words = text.split()
+        words = [word.lower() for word in words]
         word_counts.update(words)
 
     # 过滤最小词频词汇 将符合要求的转换为单词列表
