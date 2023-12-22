@@ -69,7 +69,7 @@ class GridEmbedding(nn.Module):
 
 
 if __name__ == '__main__':
-    encoder_layer = nn.TransformerEncoderLayer(d_model=512, nhead=8)
+    encoder_layer = nn.TransformerEncoderLayer(d_model=64, nhead=8)
     '''
     d_model （int）- 输入中预期特征的数量（必填）。
     nhead （int）- 多头注意力模型中的头数（必填）。
@@ -87,8 +87,8 @@ if __name__ == '__main__':
     # torchinfo.summary(encoder_layer, input_data=src)
 
     # 测试编码器
-    model = TransformerEncoder()
-    image = torch.rand(32, 3, 224, 224)
+    model = TransformerEncoder(64,8)
+    image = torch.rand(1, 3, 224, 224)
     torchinfo.summary(model, input_data=image)
 
 """

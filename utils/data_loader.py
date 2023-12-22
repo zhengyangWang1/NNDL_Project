@@ -43,31 +43,29 @@ def text_to_sequence(sentence, vocab):
 
 def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
     """
-
     :param data_file: 数据集根目录(输入数据：12694张图片，训练集和测试集的json文件(10155, 2538)，json中包含{图片名：描述})
-    :param min_word_freq: 构建词汇表时，词汇至少出现的次数
-    :param captions_per_image: 每张图片对应的文本描述数
+    :param min_word_freq: 构建词汇表时，词汇至少出现的次数，TODO 低于这个词频的词汇处理为unk?
+    :param captions_per_image: 每张图片对应的文本描述数 TODO 是否应该自行统计
     :param max_len: 文本包含最大单词数
-    :return: none (把处理好的数据存入json文件：train_data.json和test_data.json)
+    :return: none 把处理好的数据存入json文件：train_data.json和test_data.json，同时将词典存为vocab.json
     """
-
-    # 读取json文件
+    # TODO 统计
+    # 读取数据集 数据集格式 name.jpg : captions 处理为->
     train_json = os.path.join(data_file, 'train_captions.json')  # 训练集描述路径
     with open(train_json, 'r', encoding='utf-8') as train_file:
-        train_data = json.load(train_file)  # 读取json文件内容
+        train_data = json.load(train_file)
 
     test_json = os.path.join(data_file, 'test_captions.json')
     with open(test_json, 'r', encoding='utf-8') as test_file:
         test_data = json.load(test_file)
-    # print(test_data)
 
-    # 将描述转化为列表
+    # 将描述转化为列表 dict_values() -> list   py3.7之后的版本中是有顺序的
     train_descriptions = list(train_data.values())
 
     # 统计词频
     word_counts = Counter()
     for text in train_descriptions:
-        words = text.split()  # 分词
+        words = text.split()  # 通过空格分词 FIXME BUG 这样分词会导致句号和逗号都分进去
         word_counts.update(words)
 
     # 过滤词汇
@@ -75,7 +73,7 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
 
     # 建立词汇表
     vocab = {word: idx + 4 for idx, word in enumerate(filtered_words)}  # 从4开始构建词汇表，0, 1, 2, 3用于特殊标记
-    vocab['<pad>'] = 0  # 用于填充
+    vocab['<pad>'] = 0  # 填充符号
     vocab['<start>'] = 1  # 开始符号
     vocab['<end>'] = 2  # 结束符号
     vocab['<unk>'] = 3  # 未知词汇
@@ -128,14 +126,14 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
     train_data = {'IMAGES': train_img_paths, 'CAPTIONS': train_sequences}
     test_data = {'IMAGES': test_img_paths, 'CAPTIONS': test_sequences}
 
-    # 存储词典
+    # 存储词典 添加了缩进使json更易读
     with open(os.path.join(data_file, 'vocab.json'), 'w') as vocab_file:
-        json.dump(vocab, vocab_file)
+        json.dump(vocab, vocab_file, indent=4)
     # 存储数据
     with open(os.path.join(data_file, 'train_data.json'), 'w') as train_file:
-        json.dump(train_data, train_file)
+        json.dump(train_data, train_file, indent=4)
     with open(os.path.join(data_file, 'test_data.json'), 'w') as test_file:
-        json.dump(test_data, test_file)
+        json.dump(test_data, test_file, indent=4)
 
     print('---------- Data preprocess successfully! ----------')
 
@@ -144,25 +142,27 @@ class CustomDataset(Dataset):
     def __init__(self, data_path, vocab_path, captions_per_image=7, max_len=25, transform=None):
         """
         :param data_path: 预处理好的数据文件路径
-        :param vocab_path: 词表文件路径
+        :param vocab_path: 词典文件路径
         :param captions_per_image: 每张图片对应的文本描述数
         :param max_len: 文本包含最大单词数
         :param transform: 需要进行的图片预处理操作
         """
+        # 读取train/test_data.json
         with open(data_path, 'r') as file:
             self.data = json.load(file)
+        # 读取词典vocab.json
+        with open(vocab_path, 'r') as file:
+            self.vocab = json.load(file)
         self.transform = transform
         self.caption_per_image = captions_per_image
         self.max_len = max_len
-        with open(vocab_path, 'r') as file:
-            self.vocab = json.load(file)
-
         self.data_size = len(self.data['CAPTIONS'])
 
     def __len__(self):
         return self.data_size
 
     def __getitem__(self, i):
+        # 读取
         img = Image.open(self.data['IMAGES'][i // self.caption_per_image]).convert('RGB')
         if self.transform is not None:
             img = self.transform(img)
@@ -172,7 +172,7 @@ class CustomDataset(Dataset):
         # 填充文本描述的长度
         caplen = len(self.data['CAPTIONS'][i])
         # if caplen > self.max_len:
-            # print(self.data['CAPTIONS'][i])
+        # print(self.data['CAPTIONS'][i])
 
         caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len + 2 - caplen))
         # # TODO: 使用packed_sequence处理
@@ -188,39 +188,38 @@ def dataloader(data_dir, batch_size, workers=4):
     :param workers: 进程数，默认为4
     :return: train_loader, test_loader
     """
+    # 在data_process中得到的以下预处理数据
     train_data_dir = os.path.join(data_dir, 'train_data.json')
     test_data_dir = os.path.join(data_dir, 'test_data.json')
     vocab_dir = os.path.join(data_dir, 'vocab.json')
 
     # 定义图像预处理方法
+    # 原始图像大小 750*1101
     transform = transforms.Compose([
-        transforms.Pad(padding=(175, 0), padding_mode='edge'),
-        transforms.CenterCrop(1100),
-        transforms.Resize(224),
-        transforms.ToTensor(),
+        transforms.Pad(padding=(175, 0), padding_mode='edge'),  # 左右分别填充175 变成1100，1101 的大小
+        transforms.CenterCrop(1100),  # 从中间裁剪 1100矩形
+        transforms.Resize(224),  # 调整图像大小为224x224（适应resnet101预训练的输入，进行了缩放）
+        transforms.ToTensor(),  # 将图像转换为张量（Tensor）格式。将图像的每个像素值映射到0到1的范围内，并调整维度顺序为(C,H,W)
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        # FIXME ? 对图像进行标准化处理，即减去均值并除以标准差。使用给定的均值（[0.485, 0.456, 0.406]）和标准差（[0.229, 0.224, 0.225]）对每个通道的像素进行归一化处理
     ])
 
     # 创建训练和测试数据集对象
     train_dataset = CustomDataset(train_data_dir, vocab_dir, transform=transform)
     test_dataset = CustomDataset(test_data_dir, vocab_dir, transform=transform)
 
+    # 创建dataloader
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
-
-
-
     test_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
-
-
 
     return train_loader, test_loader
 
 
 if __name__ == '__main__':
-    data_process()
 
+    data_process()
     train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
 
     # 测试
