@@ -206,12 +206,12 @@ def dataloader(data_dir, batch_size, workers=4):
     test_dataset = CustomDataset(test_data_dir, vocab_dir, transform=transform)
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
 
 
 
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
+        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
 
 
 

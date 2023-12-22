@@ -17,16 +17,16 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     start_epoch = 0
-    checkpoint = None
+    checkpoint = last_checkpoint
     if checkpoint is None:
         # 定义模型
         encoder = ResNetEncoder()
-        decoder = GRUDecoder(2048, 256, len(vocab), 256, num_layers=1)
+        decoder = GRUDecoder(2048, 512, len(vocab), 512, num_layers=1)
         model = Model(encoder, decoder)
     else:
         checkpoint = torch.load(checkpoint)
-        start_epoch = checkpoint['epoch']
-        model = checkpoint['model']
+        # start_epoch = checkpoint['epoch']
+        model = checkpoint
     train_data, test_data = dataloader('data/deepfashion-mini', 32, workers=4)
 
     # 定义损失函数和优化器
@@ -37,6 +37,7 @@ if __name__ == '__main__':
     model.train()
     # 迭代训练
     num_epochs = 10
+    start_epoch = 3
     for epoch in range(num_epochs - start_epoch):  # num_epochs 为训练轮数
         num_sample = 0
         running_loss = 0.0
@@ -46,24 +47,24 @@ if __name__ == '__main__':
             imgs = imgs.to(device)
             caps = caps.to(device)
             caplens = caplens.to(device)
-            grid = encoder(imgs)
-            predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
+            grid = model.encoder(imgs)
+            predictions, sorted_captions, lengths, sorted_cap_indices = model.decoder(grid, caps, caplens)
             loss = loss_fn(predictions, sorted_captions[:, 1:], lengths)
             num_sample += imgs.shape[0]
-            running_loss += loss * imgs.shape[0]
+            running_loss += loss.item() * imgs.shape[0]  # 尝试释放累积历史记录：https://pytorch.org/docs/stable/notes/faq.html
             loss.backward()
             optimizer.step()
             if i % 50 == 0:
                 print('batch: ', i)
 
-            state = {
-                'epoch': epoch,
-                'step': i,
-                'model': model,
-                'optimizer': optimizer
-            }
-            torch.save(model, last_checkpoint)
         average_loss = running_loss / num_sample
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {average_loss:.4f}")
+
+        state = {
+            'epoch': epoch,
+            'model': model,
+            'optimizer': optimizer
+        }
+        torch.save(state, last_checkpoint)
 
 
