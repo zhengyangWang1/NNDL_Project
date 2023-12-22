@@ -53,6 +53,7 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
         for char in punctuation:
             text = text.replace(char, f" {char} ")
         words = text.split()
+        words = [word.lower() for word in words]
         word_counts.update(words)
 
     # 过滤最小词频词汇 将符合要求的转换为单词列表
@@ -103,9 +104,9 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
         json.dump(vocab, vocab_file, indent=4)
     # 存储数据
     with open(os.path.join(data_file, 'train_data.json'), 'w') as train_file:
-        json.dump(train_data, train_file, indent=4)
+        json.dump(train_data, train_file, indent=2)
     with open(os.path.join(data_file, 'test_data.json'), 'w') as test_file:
-        json.dump(test_data, test_file, indent=4)
+        json.dump(test_data, test_file, indent=2)
 
     print('---------- Data preprocess successfully! ----------')
 
