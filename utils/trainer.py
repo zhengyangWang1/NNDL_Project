@@ -96,9 +96,10 @@ def cts_train(train_dataloader, config_path=None, ):
 
     # 保存模型参数，
     torch.save(model.state_dict(), os.path.join(save_dir, model_path))
-    # 模型结构，
-
-    # 配置，
+    # 模型结构
+    with open(os.path.join(save_dir, 'model_structure.txt'), 'w') as f:  # 保存模型层级结构
+        f.write(str(model))
+    # 配置
     config.save_config(os.path.join(save_dir,'config.json'))
     # 日志
     logging.info('模型训练完成')
