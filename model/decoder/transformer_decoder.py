@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torchinfo
 import math
 
@@ -21,7 +22,7 @@ class TransformerDecoder(nn.Module):
                                                         nhead=num_head,
                                                         batch_first=True)
         self.transformer_decoder = nn.TransformerDecoder(self.decoder_layer,
-                                                         num_layers=num_decoder_layer)
+                                                         num_layers=num_decoder_layer)# TODO 是否需要norm
 
         # FIXME  编码onehot向量 对应输出(batchsize,seq_length,vocabsize) ？
         self.fc = nn.Linear(embed_size, vocab_size)
@@ -67,6 +68,16 @@ class PositionalEncoding(nn.Module):
         # 输入 batch_size,seq_length,embed_size + 1,seq_length(切片),embed_size
         x = x + self.pe[:, :x.size(1)]
         return self.dropout(x)
+
+class Generator(nn.Module):
+    "Define standard linear + softmax generation step."
+    def __init__(self, d_model, vocab):
+        super(Generator, self).__init__()
+        self.proj = nn.Linear(d_model, vocab)
+
+    def forward(self, x):
+        return F.log_softmax(self.proj(x), dim=-1)
+
 
 
 if __name__ == '__main__':
