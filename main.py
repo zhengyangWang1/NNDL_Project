@@ -3,7 +3,7 @@ import os
 import json
 import torch
 from utils.data_loader import dataloader
-from model import Model
+from model import CNNRNNStruct
 from model import ResNetEncoder, GRUDecoder, PackedCrossEntropyLoss
 
 if __name__ == '__main__':
@@ -17,12 +17,12 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     start_epoch = 0
-    checkpoint = last_checkpoint
+    checkpoint = None
     if checkpoint is None:
         # 定义模型
         encoder = ResNetEncoder()
         decoder = GRUDecoder(2048, 512, len(vocab), 512, num_layers=1)
-        model = Model(encoder, decoder)
+        model = CNNRNNStruct(encoder, decoder)
     else:
         checkpoint = torch.load(checkpoint)
         # start_epoch = checkpoint['epoch']
@@ -32,7 +32,6 @@ if __name__ == '__main__':
     # 定义损失函数和优化器
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     loss_fn = PackedCrossEntropyLoss().to(device)
-
     model.to(device)
     model.train()
     # 迭代训练
@@ -47,8 +46,12 @@ if __name__ == '__main__':
             imgs = imgs.to(device)
             caps = caps.to(device)
             caplens = caplens.to(device)
-            grid = model.encoder(imgs)
-            predictions, sorted_captions, lengths, sorted_cap_indices = model.decoder(grid, caps, caplens)
+
+            #
+            # grid = encoder(imgs)
+            # predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
+            #
+            predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs,caps,caplens)
             loss = loss_fn(predictions, sorted_captions[:, 1:], lengths)
             num_sample += imgs.shape[0]
             running_loss += loss.item() * imgs.shape[0]  # 尝试释放累积历史记录：https://pytorch.org/docs/stable/notes/faq.html
@@ -56,7 +59,6 @@ if __name__ == '__main__':
             optimizer.step()
             if i % 50 == 0:
                 print('batch: ', i)
-
         average_loss = running_loss / num_sample
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {average_loss:.4f}")
 
@@ -66,5 +68,3 @@ if __name__ == '__main__':
             'optimizer': optimizer
         }
         torch.save(state, last_checkpoint)
-
-

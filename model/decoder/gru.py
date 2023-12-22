@@ -3,9 +3,9 @@ import torch
 import numpy as np
 import torchinfo
 from torch.nn.utils.rnn import pack_padded_sequence
-from model.encoder.resnet import ResNetEncoder
-from model.model import Model
-from utils.data_loader import dataloader
+# from model.encoder.resnet import ResNetEncoder
+# from model.model import CNNRNNStruct # 报错
+# from utils.data_loader import dataloader
 import torch.optim as optim
 
 
@@ -13,7 +13,6 @@ import torch.optim as optim
 class GRUDecoder(nn.Module):
     def __init__(self, img_dim, cap_dim, vocab_size, hidden_size, num_layers=1, dropout=0.5):
         """
-
         :param img_dim: 图片的输入维度，在resnet101中为2048
         :param cap_dim: 描述的维度
         :param vocab_size: 词表的大小（词表中包含词的数量）
@@ -107,4 +106,6 @@ class PackedCrossEntropyLoss(nn.Module):
 
 
 if __name__ == '__main__':
+
     pass
+
