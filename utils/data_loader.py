@@ -9,6 +9,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from torch.utils.data import Dataset
 from PIL import Image
 from torchvision import transforms
+import string
 
 """
 # 读取数据，预处理数据
@@ -64,8 +65,11 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
 
     # 统计词频
     word_counts = Counter()
+    punctuation = string.punctuation
     for text in train_descriptions:
-        words = text.split()  # 通过空格分词 FIXME BUG 这样分词会导致句号和逗号都分进去
+        for char in punctuation:
+            text = text.replace(char, f" {char} ")
+        words = text.split()
         word_counts.update(words)
 
     # 过滤词汇
@@ -223,9 +227,9 @@ if __name__ == '__main__':
     train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
 
     # 测试
-    for batch_data in train_loader:
-        # print(batch_data)
-        inputs, labels = batch_data
+    # for batch_data in train_loader:
+    #     # print(batch_data)
+    #     inputs, labels = batch_data
 
     # ------------------------------------------------------------------
     # # 图片处理测试

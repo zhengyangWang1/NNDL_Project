@@ -17,8 +17,8 @@ class TransformerEncoder(nn.Module):
         self.grid_extract = nn.Sequential(*(list(resnet101.children())[:-2]))
 
         # 图像网格embedding
-        self.grid_embed = GridEmbedding(grid_embed_size)
         self.flatten = nn.Flatten(2, 3)
+        self.grid_embed = GridEmbedding(grid_embed_size)  # (2048, grid_embed_size)
 
         # transformer
         # 输入形状 batchsize,seq,feature 比如 batchsize,2048,512
@@ -87,39 +87,77 @@ if __name__ == '__main__':
     # torchinfo.summary(encoder_layer, input_data=src)
 
     # 测试编码器
-    model = TransformerEncoder(64,8)
+    model = TransformerEncoder(64, 8)
     image = torch.rand(1, 3, 224, 224)
     torchinfo.summary(model, input_data=image)
 
 """
-=========================================================================================================
-Layer (type:depth-idx)                                  Output Shape              Param #
-=========================================================================================================
-TransformerEncoder                                      [32, 2048, 512]           3,152,384
-├─GridRepresentationExtractor: 1-1                      [32, 2048, 7, 7]          --
-│    └─ResNetEncoder: 2-1                               [32, 2048, 7, 7]          --
-│    │    └─Sequential: 3-1                             [32, 2048, 7, 7]          42,500,160
-├─GridEmbedding: 1-2                                    [32, 2048, 512]           --
-│    └─Linear: 2-2                                      [32, 2048, 256]           12,800
-│    └─ReLU: 2-3                                        [32, 2048, 256]           --
-│    └─Linear: 2-4                                      [32, 2048, 512]           131,584
-├─TransformerEncoder: 1-3                               [32, 2048, 512]           --
-│    └─ModuleList: 2-5                                  --                        --
-│    │    └─TransformerEncoderLayer: 3-2                [32, 2048, 512]           3,152,384
-│    │    └─TransformerEncoderLayer: 3-3                [32, 2048, 512]           3,152,384
-│    │    └─TransformerEncoderLayer: 3-4                [32, 2048, 512]           3,152,384
-│    │    └─TransformerEncoderLayer: 3-5                [32, 2048, 512]           3,152,384
-│    │    └─TransformerEncoderLayer: 3-6                [32, 2048, 512]           3,152,384
-│    │    └─TransformerEncoderLayer: 3-7                [32, 2048, 512]           3,152,384
-=========================================================================================================
-Total params: 64,711,232
-Trainable params: 64,711,232
+===============================================================================================
+Layer (type:depth-idx)                        Output Shape              Param #
+===============================================================================================
+TransformerEncoder                            [1, 2048, 64]             281,152
+├─Sequential: 1-1                             [1, 2048, 7, 7]           --
+│    └─Conv2d: 2-1                            [1, 64, 112, 112]         9,408
+│    └─BatchNorm2d: 2-2                       [1, 64, 112, 112]         128
+│    └─ReLU: 2-3                              [1, 64, 112, 112]         --
+│    └─MaxPool2d: 2-4                         [1, 64, 56, 56]           --
+│    └─Sequential: 2-5                        [1, 256, 56, 56]          --
+│    │    └─Bottleneck: 3-1                   [1, 256, 56, 56]          75,008
+│    │    └─Bottleneck: 3-2                   [1, 256, 56, 56]          70,400
+│    │    └─Bottleneck: 3-3                   [1, 256, 56, 56]          70,400
+│    └─Sequential: 2-6                        [1, 512, 28, 28]          --
+│    │    └─Bottleneck: 3-4                   [1, 512, 28, 28]          379,392
+│    │    └─Bottleneck: 3-5                   [1, 512, 28, 28]          280,064
+│    │    └─Bottleneck: 3-6                   [1, 512, 28, 28]          280,064
+│    │    └─Bottleneck: 3-7                   [1, 512, 28, 28]          280,064
+│    └─Sequential: 2-7                        [1, 1024, 14, 14]         --
+│    │    └─Bottleneck: 3-8                   [1, 1024, 14, 14]         1,512,448
+│    │    └─Bottleneck: 3-9                   [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-10                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-11                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-12                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-13                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-14                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-15                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-16                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-17                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-18                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-19                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-20                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-21                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-22                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-23                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-24                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-25                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-26                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-27                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-28                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-29                  [1, 1024, 14, 14]         1,117,184
+│    │    └─Bottleneck: 3-30                  [1, 1024, 14, 14]         1,117,184
+│    └─Sequential: 2-8                        [1, 2048, 7, 7]           --
+│    │    └─Bottleneck: 3-31                  [1, 2048, 7, 7]           6,039,552
+│    │    └─Bottleneck: 3-32                  [1, 2048, 7, 7]           4,462,592
+│    │    └─Bottleneck: 3-33                  [1, 2048, 7, 7]           4,462,592
+├─Flatten: 1-2                                [1, 2048, 49]             --
+├─GridEmbedding: 1-3                          [1, 2048, 64]             --
+│    └─Linear: 2-9                            [1, 2048, 64]             3,200
+├─TransformerEncoder: 1-4                     [1, 2048, 64]             --
+│    └─ModuleList: 2-10                       --                        --
+│    │    └─TransformerEncoderLayer: 3-34     [1, 2048, 64]             281,152
+│    │    └─TransformerEncoderLayer: 3-35     [1, 2048, 64]             281,152
+│    │    └─TransformerEncoderLayer: 3-36     [1, 2048, 64]             281,152
+│    │    └─TransformerEncoderLayer: 3-37     [1, 2048, 64]             281,152
+│    │    └─TransformerEncoderLayer: 3-38     [1, 2048, 64]             281,152
+│    │    └─TransformerEncoderLayer: 3-39     [1, 2048, 64]             281,152
+===============================================================================================
+Total params: 44,471,424
+Trainable params: 44,471,424
 Non-trainable params: 0
-Total mult-adds (G): 249.59
-=========================================================================================================
-Input size (MB): 19.27
-Forward/backward pass size (MB): 8713.40
-Params size (MB): 170.58
-Estimated Total Size (MB): 8903.25
-=========================================================================================================
+Total mult-adds (G): 7.80
+===============================================================================================
+Input size (MB): 0.60
+Forward/backward pass size (MB): 260.76
+Params size (MB): 170.01
+Estimated Total Size (MB): 431.38
+===============================================================================================
 """

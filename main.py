@@ -47,10 +47,6 @@ if __name__ == '__main__':
             caps = caps.to(device)
             caplens = caplens.to(device)
 
-            #
-            # grid = encoder(imgs)
-            # predictions, sorted_captions, lengths, sorted_cap_indices = decoder(grid, caps, caplens)
-            #
             predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs,caps,caplens)
             loss = loss_fn(predictions, sorted_captions[:, 1:], lengths)
             num_sample += imgs.shape[0]
