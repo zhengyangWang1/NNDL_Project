@@ -60,47 +60,38 @@ def cts_train(train_dataloader, config: Config, ):
         batch_start = time.time()
 
         for i, (imgs, caps, caplens) in enumerate(train_dataloader):
-            print(f'Iter{i} | ',end='')
             # 清空优化器梯度
             optimizer.zero_grad()
             # 设备转移
-            start = time.time()
+            transfer_start = time.time()
             imgs = imgs.to(device)
             caps = caps.to(device)
-            # caplens = caplens.to(device)
-            print(f'Transfer data :{time.time() - start:.4f}| ', end='')
-            # 处理数据为7*Batchsize，扩展batch
             # forward 返回B*seq_length*vocab_size
-            start = time.time()
+            forward_start = time.time()
             result = model(imgs, caps)
             # 计算损失
-            # caps = torch.eye(config.vocab_size)[caps]  # onehot编码为向量
-            eye_tensor = torch.eye(config.vocab_size, device=device)  # 在caps所在设备上生成one-hot向量
-            caps = eye_tensor[caps]
+            caps = torch.eye(config.vocab_size, device=device)[caps]  # 在caps所在设备上生成one-hot向量
             loss = criterion(result, caps, caplens)
             # 累计损失
             num_samples += imgs.size(0)
-            running_loss += imgs.size(0) * loss.item()
+            running_loss += loss.item()  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
+            l = loss.item()
             # 反向传播
-            print(f'Loss {loss.item():.4f}| ', end='')
             loss.backward()
             optimizer.step()
-            print(f'Forward :{time.time() - start:.4f}| ')
+            end = time.time()
+            if i % 50 == 0:
+                print(
+                    f'Iter {i}: Loss {l:.4f}|Transfer data :{forward_start - transfer_start:.2f}s|Forward :{end - forward_start:.2f}s| ')
 
         average_loss = running_loss / num_samples
         # 日志记录训练信息
         if (epoch + 1) % 1 == 0:
-            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start:.4f}'
+            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start:.2f}s'
             print(log_string)
             logging.info(log_string)
 
-        # 在每个epoch结束时保存
-        state = {
-            'epoch': epoch,
-            'model': model,
-            'optimizer': optimizer
-        }
-        torch.save(state, os.path.join(save_dir, 'checkpoint/transformer.ckpt'))
+        torch.save(model.state_dict(), os.path.join(save_dir, model_path))
     # 绘图
 
     # 保存模型参数，
