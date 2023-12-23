@@ -1,0 +1,550 @@
+GPU Memory Track | 23-Dec-23-18:45:46 | Total Tensor Used Memory:187.1  Mb Total Allocated Memory:187.4  Mb
+
++ | 23 * Size:(256, 256, 3, 3)     | Memory: 51.75 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(1024, 512, 1, 1)    | Memory: 2.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 3 * Size:(128, 512, 1, 1)     | Memory: 0.75 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(512, 1024, 1, 1)    | Memory: 2.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 16 * Size:(2048,)              | Memory: 0.125 M | <class 'torch.Tensor'> | torch.float32
++ | 32 * Size:(128,)               | Memory: 0.0156 M | <class 'torch.Tensor'> | torch.float32
++ | 1 * Size:(32, 25)             | Memory: 0.0061 M | <class 'torch.Tensor'> | torch.int64
++ | 16 * Size:(2048,)              | Memory: 0.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 200 * Size:(256,)               | Memory: 0.1953 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 96 * Size:(1024,)              | Memory: 0.375 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 14 * Size:(32, 512)            | Memory: 0.875 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(1, 100, 32)         | Memory: 0.0122 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(256, 64, 1, 1)      | Memory: 0.25 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 21 * Size:(96,)                | Memory: 0.0076 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 21 * Size:(96, 32)             | Memory: 0.2460 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(109,)               | Memory: 0.0004 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(128, 128, 3, 3)     | Memory: 2.25 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 23 * Size:(1024, 256, 1, 1)    | Memory: 23.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 2 * Size:(64, 256, 1, 1)      | Memory: 0.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 59 * Size:(512,)               | Memory: 0.1152 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(64, 3, 7, 7)        | Memory: 0.0358 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 3 * Size:(64, 64, 3, 3)       | Memory: 0.4218 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 200 * Size:(256,)               | Memory: 0.1953 M | <class 'torch.Tensor'> | torch.float32
++ | 22 * Size:(256, 1024, 1, 1)    | Memory: 22.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(2048, 1024, 1, 1)   | Memory: 8.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 96 * Size:(1024,)              | Memory: 0.375 M | <class 'torch.Tensor'> | torch.float32
++ | 3 * Size:(512, 512, 3, 3)     | Memory: 27.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 3 * Size:(512, 2048, 1, 1)    | Memory: 12.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 3 * Size:(2048, 512, 1, 1)    | Memory: 12.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 104 * Size:()                   | Memory: 0.0007 M | <class 'torch.Tensor'> | torch.int64
++ | 28 * Size:(64,)                | Memory: 0.0068 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(32, 3, 224, 224)    | Memory: 18.375 M | <class 'torch.Tensor'> | torch.float32
++ | 32 * Size:(128,)               | Memory: 0.0156 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(256, 512, 1, 1)     | Memory: 0.5 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(64, 64, 1, 1)       | Memory: 0.0156 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(128, 256, 1, 1)     | Memory: 0.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(512, 256, 1, 1)     | Memory: 0.5 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 28 * Size:(64,)                | Memory: 0.0068 M | <class 'torch.Tensor'> | torch.float32
++ | 14 * Size:(512, 32)            | Memory: 0.875 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 59 * Size:(512,)               | Memory: 0.1152 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(512, 128, 1, 1)     | Memory: 1.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 21 * Size:(32, 32)             | Memory: 0.0820 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(32, 49)             | Memory: 0.0059 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 2 * Size:(109, 32)            | Memory: 0.0266 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 106 * Size:(32,)                | Memory: 0.0129 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 50: forward Total Tensor Used Memory:187.1  Mb Total Allocated Memory:187.4  Mb
+
++ | 14 * Size:(32, 128, 28, 28)    | Memory: 171.5 M | <class 'torch.Tensor'> | torch.float32
++ | 9 * Size:(32, 512, 28, 28)    | Memory: 441.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 128, 56, 56)    | Memory: 98.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 256, 28, 28)    | Memory: 49.0 M | <class 'torch.Tensor'> | torch.float32
++ | 47 * Size:(32, 1024, 14, 14)   | Memory: 1151.5 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 64, 112, 112)   | Memory: 196.0 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 256, 56, 56)    | Memory: 686.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 512, 14, 14)    | Memory: 24.5 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 2048, 7, 7)     | Memory: 85.75 M | <class 'torch.Tensor'> | torch.float32
++ | 11 * Size:(32, 512, 7, 7)      | Memory: 33.687 M | <class 'torch.Tensor'> | torch.float32
++ | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
++ | 90 * Size:(32, 256, 14, 14)    | Memory: 551.25 M | <class 'torch.Tensor'> | torch.float32
++ | 13 * Size:(32, 64, 56, 56)     | Memory: 318.5 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 55: forward Total Tensor Used Memory:3996.8 Mb Total Allocated Memory:4049.2 Mb
+
++ | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 60: forward Total Tensor Used Memory:3998.8 Mb Total Allocated Memory:4051.6 Mb
+
++ | 6 * Size:(16384, 32)          | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(512, 256, 4)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 512, 512)      | Memory: 1536.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 512, 512)       | Memory: 192.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 65: forward Total Tensor Used Memory:5848.8 Mb Total Allocated Memory:8054.8 Mb
+
++ | 19 * Size:(32, 512, 32)        | Memory: 38.0 M | <class 'torch.Tensor'> | torch.float32
+- | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/model.py line 62: forward Total Tensor Used Memory:5843.8 Mb Total Allocated Memory:8052.4 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 44: forward Total Tensor Used Memory:5843.8 Mb Total Allocated Memory:8052.4 Mb
+
++ | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 47: forward Total Tensor Used Memory:5843.9 Mb Total Allocated Memory:8052.5 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 50: forward Total Tensor Used Memory:5843.9 Mb Total Allocated Memory:8052.5 Mb
+
++ | 12 * Size:(256, 4, 512)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 25, 512)        | Memory: 9.375 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 25)         | Memory: 0.5859 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 32, 32)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 25, 4)         | Memory: 1.7578 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 512)       | Memory: 75.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 256, 4)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 512, 4)        | Memory: 36.0 M | <class 'torch.Tensor'> | torch.float32
++ | 24 * Size:(512, 32, 32)        | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 25)        | Memory: 3.6621 M | <class 'torch.Tensor'> | torch.float32
++ | 26 * Size:(32, 25, 32)         | Memory: 2.5390 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(800, 32)            | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 56: forward Total Tensor Used Memory:5988.2 Mb Total Allocated Memory:8300.2 Mb
+
++ | 1 * Size:(32, 25, 109)        | Memory: 0.3326 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 60: forward Total Tensor Used Memory:5988.5 Mb Total Allocated Memory:8300.5 Mb
+
++ | 92 * Size:(256, 256, 3, 3)     | Memory: 207.0 M | <class 'torch.Tensor'> | torch.float32
++ | 40 * Size:(2048,)              | Memory: 0.3125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(64, 3, 7, 7)        | Memory: 0.1435 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 88 * Size:(256, 1024, 1, 1)    | Memory: 88.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 12 * Size:(512, 512, 3, 3)     | Memory: 108.0 M | <class 'torch.Tensor'> | torch.float32
++ | 379 * Size:(32,)                | Memory: 0.0462 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(1024, 512, 1, 1)    | Memory: 8.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(512, 1024, 1, 1)    | Memory: 8.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 50 * Size:(512, 32)            | Memory: 3.125 M | <class 'torch.Tensor'> | torch.float32
++ | 8 * Size:(64, 256, 1, 1)      | Memory: 0.5 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 12 * Size:(128, 512, 1, 1)     | Memory: 3.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(512, 512, 3, 3)     | Memory: 108.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(2048, 1024, 1, 1)   | Memory: 32.0 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(109,)               | Memory: 0.0016 M | <class 'torch.Tensor'> | torch.float32
++ | 50 * Size:(32, 512)            | Memory: 3.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 16 * Size:(256, 64, 1, 1)      | Memory: 1.0 M | <class 'torch.Tensor'> | torch.float32
++ | 16 * Size:(256, 64, 1, 1)      | Memory: 1.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 75 * Size:(96, 32)             | Memory: 0.8789 M | <class 'torch.Tensor'> | torch.float32
++ | 8 * Size:(64, 256, 1, 1)      | Memory: 0.5 M | <class 'torch.Tensor'> | torch.float32
++ | 75 * Size:(96,)                | Memory: 0.0274 M | <class 'torch.Tensor'> | torch.float32
++ | 16 * Size:(128, 128, 3, 3)     | Memory: 9.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 164 * Size:(512,)               | Memory: 0.3203 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 379 * Size:(32,)                | Memory: 0.0462 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 164 * Size:(512,)               | Memory: 0.3203 M | <class 'torch.Tensor'> | torch.float32
++ | 8 * Size:(109, 32)            | Memory: 0.1064 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(64, 3, 7, 7)        | Memory: 0.1435 M | <class 'torch.Tensor'> | torch.float32
++ | 240 * Size:(1024,)              | Memory: 0.9375 M | <class 'torch.Tensor'> | torch.float32
++ | 70 * Size:(64,)                | Memory: 0.0170 M | <class 'torch.Tensor'> | torch.float32
++ | 75 * Size:(32, 32)             | Memory: 0.2929 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(109,)               | Memory: 0.0016 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(64, 64, 1, 1)       | Memory: 0.0625 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(512, 256, 1, 1)     | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(256, 512, 1, 1)     | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(128, 256, 1, 1)     | Memory: 0.5 M | <class 'torch.Tensor'> | torch.float32
++ | 16 * Size:(128, 128, 3, 3)     | Memory: 9.0 M | <class 'torch.Tensor'> | torch.float32
++ | 88 * Size:(256, 1024, 1, 1)    | Memory: 88.0 M | <class 'torch.Tensor'> | torch.float32
++ | 80 * Size:(128,)               | Memory: 0.0390 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(32, 49)             | Memory: 0.0239 M | <class 'torch.Tensor'> | torch.float32
++ | 50 * Size:(32, 512)            | Memory: 3.125 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(512, 2048, 1, 1)    | Memory: 48.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 12 * Size:(2048, 512, 1, 1)    | Memory: 48.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 12 * Size:(64, 64, 3, 3)       | Memory: 1.6875 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 8 * Size:(109, 32)            | Memory: 0.1064 M | <class 'torch.Tensor'> | torch.float32
++ | 50 * Size:(512, 32)            | Memory: 3.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 16 * Size:(512, 128, 1, 1)     | Memory: 4.0 M | <class 'torch.Tensor'> | torch.float32
++ | 16 * Size:(512, 128, 1, 1)     | Memory: 4.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 70 * Size:(64,)                | Memory: 0.0170 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(2048, 1024, 1, 1)   | Memory: 32.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 75 * Size:(32, 32)             | Memory: 0.2929 M | <class 'torch.Tensor'> | torch.float32
++ | 80 * Size:(128,)               | Memory: 0.0390 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 92 * Size:(256, 256, 3, 3)     | Memory: 207.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:(109, 109)           | Memory: 0.0453 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(512, 2048, 1, 1)    | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(2048, 512, 1, 1)    | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
++ | 92 * Size:(1024, 256, 1, 1)    | Memory: 92.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 12 * Size:(128, 512, 1, 1)     | Memory: 3.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(512, 1024, 1, 1)    | Memory: 8.0 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(1024, 512, 1, 1)    | Memory: 8.0 M | <class 'torch.Tensor'> | torch.float32
++ | 92 * Size:(1024, 256, 1, 1)    | Memory: 92.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(64, 64, 3, 3)       | Memory: 1.6875 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(32, 49)             | Memory: 0.0239 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 1 * Size:()                   | Memory: 3.8146 M | <class 'torch.Tensor'> | torch.float32
++ | 500 * Size:(256,)               | Memory: 0.4882 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 40 * Size:(2048,)              | Memory: 0.3125 M | <class 'torch.Tensor'> | torch.float32
++ | 75 * Size:(96,)                | Memory: 0.0274 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(128, 256, 1, 1)     | Memory: 0.5 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(256, 512, 1, 1)     | Memory: 2.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 500 * Size:(256,)               | Memory: 0.4882 M | <class 'torch.Tensor'> | torch.float32
++ | 4 * Size:(512, 256, 1, 1)     | Memory: 2.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 75 * Size:(96, 32)             | Memory: 0.8789 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 4 * Size:(64, 64, 1, 1)       | Memory: 0.0625 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
++ | 240 * Size:(1024,)              | Memory: 0.9375 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 12 * Size:(256, 4, 512)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 23 * Size:(256, 256, 3, 3)     | Memory: 51.75 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 9 * Size:(32, 512, 28, 28)    | Memory: 441.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 4, 25)         | Memory: 0.5859 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(16384, 32)          | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(1024, 512, 1, 1)    | Memory: 2.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 3 * Size:(128, 512, 1, 1)     | Memory: 0.75 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 1 * Size:(512, 1024, 1, 1)    | Memory: 2.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 16 * Size:(2048,)              | Memory: 0.125 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 256, 28, 28)    | Memory: 49.0 M | <class 'torch.Tensor'> | torch.float32
+- | 47 * Size:(32, 1024, 14, 14)   | Memory: 1151.5 M | <class 'torch.Tensor'> | torch.float32
+- | 90 * Size:(32, 256, 14, 14)    | Memory: 551.25 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 25, 25)        | Memory: 3.6621 M | <class 'torch.Tensor'> | torch.float32
+- | 26 * Size:(32, 25, 32)         | Memory: 2.5390 M | <class 'torch.Tensor'> | torch.float32
+- | 16 * Size:(2048,)              | Memory: 0.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 32 * Size:(128,)               | Memory: 0.0156 M | <class 'torch.Tensor'> | torch.float32
+- | 200 * Size:(256,)               | Memory: 0.1953 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 2 * Size:(32, 64, 112, 112)   | Memory: 196.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 25, 512)       | Memory: 75.0 M | <class 'torch.Tensor'> | torch.float32
+- | 96 * Size:(1024,)              | Memory: 0.375 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 7 * Size:(32, 256, 56, 56)    | Memory: 686.0 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 512, 14, 14)    | Memory: 24.5 M | <class 'torch.Tensor'> | torch.float32
+- | 14 * Size:(32, 512)            | Memory: 0.875 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 12 * Size:(25, 256, 4)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 4 * Size:(256, 64, 1, 1)      | Memory: 0.25 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 21 * Size:(96,)                | Memory: 0.0076 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 21 * Size:(96, 32)             | Memory: 0.2460 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 24 * Size:(512, 32, 32)        | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 512, 512)      | Memory: 1536.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(32, 512, 512)       | Memory: 192.0 M | <class 'torch.Tensor'> | torch.float32
+- | 23 * Size:(1024, 256, 1, 1)    | Memory: 23.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 19 * Size:(32, 512, 32)        | Memory: 38.0 M | <class 'torch.Tensor'> | torch.float32
+- | 4 * Size:(128, 128, 3, 3)     | Memory: 2.25 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 6 * Size:(32, 25, 512)        | Memory: 9.375 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(64, 256, 1, 1)      | Memory: 0.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 59 * Size:(512,)               | Memory: 0.1152 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 106 * Size:(32,)                | Memory: 0.0129 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 12 * Size:(25, 32, 32)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 18 * Size:(256, 25, 4)         | Memory: 1.7578 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(64, 3, 7, 7)        | Memory: 0.0358 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 3 * Size:(64, 64, 3, 3)       | Memory: 0.4218 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 200 * Size:(256,)               | Memory: 0.1953 M | <class 'torch.Tensor'> | torch.float32
+- | 22 * Size:(256, 1024, 1, 1)    | Memory: 22.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 1 * Size:(2048, 1024, 1, 1)   | Memory: 8.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 6 * Size:(512, 256, 4)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 96 * Size:(1024,)              | Memory: 0.375 M | <class 'torch.Tensor'> | torch.float32
+- | 14 * Size:(32, 128, 28, 28)    | Memory: 171.5 M | <class 'torch.Tensor'> | torch.float32
+- | 3 * Size:(512, 512, 3, 3)     | Memory: 27.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 3 * Size:(512, 2048, 1, 1)    | Memory: 12.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 3 * Size:(2048, 512, 1, 1)    | Memory: 12.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 2 * Size:(32, 128, 56, 56)    | Memory: 98.0 M | <class 'torch.Tensor'> | torch.float32
+- | 28 * Size:(64,)                | Memory: 0.0068 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 7 * Size:(32, 2048, 7, 7)     | Memory: 85.75 M | <class 'torch.Tensor'> | torch.float32
+- | 32 * Size:(128,)               | Memory: 0.0156 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 1 * Size:(256, 512, 1, 1)     | Memory: 0.5 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 11 * Size:(32, 512, 7, 7)      | Memory: 33.687 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(64, 64, 1, 1)       | Memory: 0.0156 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 1 * Size:(128, 256, 1, 1)     | Memory: 0.125 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 1 * Size:(512, 256, 1, 1)     | Memory: 0.5 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 28 * Size:(64,)                | Memory: 0.0068 M | <class 'torch.Tensor'> | torch.float32
+- | 14 * Size:(512, 32)            | Memory: 0.875 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 59 * Size:(512,)               | Memory: 0.1152 M | <class 'torch.Tensor'> | torch.float32
+- | 4 * Size:(512, 128, 1, 1)     | Memory: 1.0 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 21 * Size:(32, 32)             | Memory: 0.0820 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 18 * Size:(256, 512, 4)        | Memory: 36.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 49)             | Memory: 0.0059 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 2 * Size:(109, 32)            | Memory: 0.0266 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+- | 12 * Size:(800, 32)            | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 13 * Size:(32, 64, 56, 56)     | Memory: 318.5 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(109,)               | Memory: 0.0004 M | <class 'torch.nn.parameter.Parameter'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 50: forward Total Tensor Used Memory:691.4  Mb Total Allocated Memory:708.4  Mb
+
++ | 14 * Size:(32, 128, 28, 28)    | Memory: 171.5 M | <class 'torch.Tensor'> | torch.float32
++ | 9 * Size:(32, 512, 28, 28)    | Memory: 441.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 128, 56, 56)    | Memory: 98.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 256, 28, 28)    | Memory: 49.0 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 2048, 7, 7)     | Memory: 85.75 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 64, 112, 112)   | Memory: 196.0 M | <class 'torch.Tensor'> | torch.float32
++ | 47 * Size:(32, 1024, 14, 14)   | Memory: 1151.5 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 512, 14, 14)    | Memory: 24.5 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 256, 56, 56)    | Memory: 686.0 M | <class 'torch.Tensor'> | torch.float32
++ | 11 * Size:(32, 512, 7, 7)      | Memory: 33.687 M | <class 'torch.Tensor'> | torch.float32
++ | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
++ | 90 * Size:(32, 256, 14, 14)    | Memory: 551.25 M | <class 'torch.Tensor'> | torch.float32
++ | 13 * Size:(32, 64, 56, 56)     | Memory: 318.5 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 55: forward Total Tensor Used Memory:4501.2 Mb Total Allocated Memory:4569.5 Mb
+
++ | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 60: forward Total Tensor Used Memory:4503.2 Mb Total Allocated Memory:4571.5 Mb
+
++ | 6 * Size:(16384, 32)          | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 512, 512)      | Memory: 1536.0 M | <class 'torch.Tensor'> | torch.float32
++ | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(512, 256, 4)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 512, 512)       | Memory: 192.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 65: forward Total Tensor Used Memory:6353.2 Mb Total Allocated Memory:8569.8 Mb
+
++ | 19 * Size:(32, 512, 32)        | Memory: 38.0 M | <class 'torch.Tensor'> | torch.float32
+- | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/model.py line 62: forward Total Tensor Used Memory:6348.1 Mb Total Allocated Memory:8567.8 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 44: forward Total Tensor Used Memory:6348.1 Mb Total Allocated Memory:8567.8 Mb
+
++ | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 47: forward Total Tensor Used Memory:6348.2 Mb Total Allocated Memory:8567.9 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 50: forward Total Tensor Used Memory:6348.2 Mb Total Allocated Memory:8568.0 Mb
+
++ | 12 * Size:(256, 4, 512)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 25, 512)        | Memory: 9.375 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 25)         | Memory: 0.5859 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 25, 4)         | Memory: 1.7578 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 32, 32)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 512)       | Memory: 75.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 256, 4)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 512, 4)        | Memory: 36.0 M | <class 'torch.Tensor'> | torch.float32
++ | 24 * Size:(512, 32, 32)        | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 25)        | Memory: 3.6621 M | <class 'torch.Tensor'> | torch.float32
++ | 26 * Size:(32, 25, 32)         | Memory: 2.5390 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(800, 32)            | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 56: forward Total Tensor Used Memory:6492.5 Mb Total Allocated Memory:8816.1 Mb
+
++ | 2 * Size:(32, 25, 109)        | Memory: 0.6652 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 25, 109)        | Memory: 0.3326 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 60: forward Total Tensor Used Memory:6492.9 Mb Total Allocated Memory:8816.5 Mb
+
++ | 1 * Size:(32, 25, 109)        | Memory: 0.3326 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(256, 4, 512)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 9 * Size:(32, 512, 28, 28)    | Memory: 441.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 4, 25)         | Memory: 0.5859 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(16384, 32)          | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 256, 28, 28)    | Memory: 49.0 M | <class 'torch.Tensor'> | torch.float32
+- | 47 * Size:(32, 1024, 14, 14)   | Memory: 1151.5 M | <class 'torch.Tensor'> | torch.float32
+- | 90 * Size:(32, 256, 14, 14)    | Memory: 551.25 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 25, 25)        | Memory: 3.6621 M | <class 'torch.Tensor'> | torch.float32
+- | 26 * Size:(32, 25, 32)         | Memory: 2.5390 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 64, 112, 112)   | Memory: 196.0 M | <class 'torch.Tensor'> | torch.float32
+- | 7 * Size:(32, 256, 56, 56)    | Memory: 686.0 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 512, 14, 14)    | Memory: 24.5 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 25, 512)       | Memory: 75.0 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(25, 256, 4)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 24 * Size:(512, 32, 32)        | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(32, 512, 512)       | Memory: 192.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 512, 512)      | Memory: 1536.0 M | <class 'torch.Tensor'> | torch.float32
+- | 19 * Size:(32, 512, 32)        | Memory: 38.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(32, 25, 512)        | Memory: 9.375 M | <class 'torch.Tensor'> | torch.float32
+- | 18 * Size:(256, 25, 4)         | Memory: 1.7578 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(25, 32, 32)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(512, 256, 4)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 14 * Size:(32, 128, 28, 28)    | Memory: 171.5 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 128, 56, 56)    | Memory: 98.0 M | <class 'torch.Tensor'> | torch.float32
+- | 7 * Size:(32, 2048, 7, 7)     | Memory: 85.75 M | <class 'torch.Tensor'> | torch.float32
+- | 11 * Size:(32, 512, 7, 7)      | Memory: 33.687 M | <class 'torch.Tensor'> | torch.float32
+- | 18 * Size:(256, 512, 4)        | Memory: 36.0 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 25, 109)        | Memory: 0.6652 M | <class 'torch.Tensor'> | torch.float32
+- | 13 * Size:(32, 64, 56, 56)     | Memory: 318.5 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(800, 32)            | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 50: forward Total Tensor Used Memory:691.4  Mb Total Allocated Memory:708.4  Mb
+
++ | 14 * Size:(32, 128, 28, 28)    | Memory: 171.5 M | <class 'torch.Tensor'> | torch.float32
++ | 9 * Size:(32, 512, 28, 28)    | Memory: 441.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 128, 56, 56)    | Memory: 98.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 256, 28, 28)    | Memory: 49.0 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 2048, 7, 7)     | Memory: 85.75 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 64, 112, 112)   | Memory: 196.0 M | <class 'torch.Tensor'> | torch.float32
++ | 47 * Size:(32, 1024, 14, 14)   | Memory: 1151.5 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 512, 14, 14)    | Memory: 24.5 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 256, 56, 56)    | Memory: 686.0 M | <class 'torch.Tensor'> | torch.float32
++ | 11 * Size:(32, 512, 7, 7)      | Memory: 33.687 M | <class 'torch.Tensor'> | torch.float32
++ | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
++ | 90 * Size:(32, 256, 14, 14)    | Memory: 551.25 M | <class 'torch.Tensor'> | torch.float32
++ | 13 * Size:(32, 64, 56, 56)     | Memory: 318.5 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 55: forward Total Tensor Used Memory:4501.2 Mb Total Allocated Memory:4569.5 Mb
+
++ | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 60: forward Total Tensor Used Memory:4503.2 Mb Total Allocated Memory:4571.5 Mb
+
++ | 6 * Size:(16384, 32)          | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 512, 512)      | Memory: 1536.0 M | <class 'torch.Tensor'> | torch.float32
++ | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(512, 256, 4)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 512, 512)       | Memory: 192.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 65: forward Total Tensor Used Memory:6353.2 Mb Total Allocated Memory:8569.4 Mb
+
++ | 19 * Size:(32, 512, 32)        | Memory: 38.0 M | <class 'torch.Tensor'> | torch.float32
+- | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/model.py line 62: forward Total Tensor Used Memory:6348.1 Mb Total Allocated Memory:8567.4 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 44: forward Total Tensor Used Memory:6348.1 Mb Total Allocated Memory:8567.4 Mb
+
++ | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 47: forward Total Tensor Used Memory:6348.2 Mb Total Allocated Memory:8567.5 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 50: forward Total Tensor Used Memory:6348.2 Mb Total Allocated Memory:8567.5 Mb
+
++ | 12 * Size:(256, 4, 512)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 25, 512)        | Memory: 9.375 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 25)         | Memory: 0.5859 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 25, 4)         | Memory: 1.7578 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 32, 32)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 512)       | Memory: 75.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 256, 4)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 512, 4)        | Memory: 36.0 M | <class 'torch.Tensor'> | torch.float32
++ | 24 * Size:(512, 32, 32)        | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 25)        | Memory: 3.6621 M | <class 'torch.Tensor'> | torch.float32
++ | 26 * Size:(32, 25, 32)         | Memory: 2.5390 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(800, 32)            | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 56: forward Total Tensor Used Memory:6492.5 Mb Total Allocated Memory:8815.4 Mb
+
++ | 2 * Size:(32, 25, 109)        | Memory: 0.6652 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 25, 109)        | Memory: 0.3326 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 60: forward Total Tensor Used Memory:6492.9 Mb Total Allocated Memory:8815.7 Mb
+
++ | 1 * Size:(32, 25, 109)        | Memory: 0.3326 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(256, 4, 512)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 9 * Size:(32, 512, 28, 28)    | Memory: 441.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 4, 25)         | Memory: 0.5859 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(16384, 32)          | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 256, 28, 28)    | Memory: 49.0 M | <class 'torch.Tensor'> | torch.float32
+- | 47 * Size:(32, 1024, 14, 14)   | Memory: 1151.5 M | <class 'torch.Tensor'> | torch.float32
+- | 90 * Size:(32, 256, 14, 14)    | Memory: 551.25 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 25, 25)        | Memory: 3.6621 M | <class 'torch.Tensor'> | torch.float32
+- | 26 * Size:(32, 25, 32)         | Memory: 2.5390 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 64, 112, 112)   | Memory: 196.0 M | <class 'torch.Tensor'> | torch.float32
+- | 7 * Size:(32, 256, 56, 56)    | Memory: 686.0 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 512, 14, 14)    | Memory: 24.5 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 25, 512)       | Memory: 75.0 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(25, 256, 4)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 24 * Size:(512, 32, 32)        | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(32, 512, 512)       | Memory: 192.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 512, 512)      | Memory: 1536.0 M | <class 'torch.Tensor'> | torch.float32
+- | 19 * Size:(32, 512, 32)        | Memory: 38.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(32, 25, 512)        | Memory: 9.375 M | <class 'torch.Tensor'> | torch.float32
+- | 18 * Size:(256, 25, 4)         | Memory: 1.7578 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(25, 32, 32)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(512, 256, 4)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 14 * Size:(32, 128, 28, 28)    | Memory: 171.5 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 128, 56, 56)    | Memory: 98.0 M | <class 'torch.Tensor'> | torch.float32
+- | 7 * Size:(32, 2048, 7, 7)     | Memory: 85.75 M | <class 'torch.Tensor'> | torch.float32
+- | 11 * Size:(32, 512, 7, 7)      | Memory: 33.687 M | <class 'torch.Tensor'> | torch.float32
+- | 18 * Size:(256, 512, 4)        | Memory: 36.0 M | <class 'torch.Tensor'> | torch.float32
+- | 2 * Size:(32, 25, 109)        | Memory: 0.6652 M | <class 'torch.Tensor'> | torch.float32
+- | 13 * Size:(32, 64, 56, 56)     | Memory: 318.5 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(800, 32)            | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 50: forward Total Tensor Used Memory:691.4  Mb Total Allocated Memory:708.4  Mb
+
++ | 14 * Size:(32, 128, 28, 28)    | Memory: 171.5 M | <class 'torch.Tensor'> | torch.float32
++ | 9 * Size:(32, 512, 28, 28)    | Memory: 441.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 128, 56, 56)    | Memory: 98.0 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 256, 28, 28)    | Memory: 49.0 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 2048, 7, 7)     | Memory: 85.75 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 64, 112, 112)   | Memory: 196.0 M | <class 'torch.Tensor'> | torch.float32
++ | 47 * Size:(32, 1024, 14, 14)   | Memory: 1151.5 M | <class 'torch.Tensor'> | torch.float32
++ | 2 * Size:(32, 512, 14, 14)    | Memory: 24.5 M | <class 'torch.Tensor'> | torch.float32
++ | 7 * Size:(32, 256, 56, 56)    | Memory: 686.0 M | <class 'torch.Tensor'> | torch.float32
++ | 11 * Size:(32, 512, 7, 7)      | Memory: 33.687 M | <class 'torch.Tensor'> | torch.float32
++ | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
++ | 90 * Size:(32, 256, 14, 14)    | Memory: 551.25 M | <class 'torch.Tensor'> | torch.float32
++ | 13 * Size:(32, 64, 56, 56)     | Memory: 318.5 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 55: forward Total Tensor Used Memory:4501.2 Mb Total Allocated Memory:4569.5 Mb
+
++ | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 60: forward Total Tensor Used Memory:4503.2 Mb Total Allocated Memory:4571.5 Mb
+
++ | 6 * Size:(16384, 32)          | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 512, 512)      | Memory: 1536.0 M | <class 'torch.Tensor'> | torch.float32
++ | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(512, 256, 4)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 512, 512)       | Memory: 192.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 32)        | Memory: 2.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/encoder/transformer_encoder.py line 65: forward Total Tensor Used Memory:6353.2 Mb Total Allocated Memory:8569.4 Mb
+
++ | 19 * Size:(32, 512, 32)        | Memory: 38.0 M | <class 'torch.Tensor'> | torch.float32
+- | 20 * Size:(32, 512, 32)        | Memory: 40.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 512, 49)        | Memory: 3.0625 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/model.py line 62: forward Total Tensor Used Memory:6348.1 Mb Total Allocated Memory:8567.4 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 44: forward Total Tensor Used Memory:6348.1 Mb Total Allocated Memory:8567.4 Mb
+
++ | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 47: forward Total Tensor Used Memory:6348.2 Mb Total Allocated Memory:8567.5 Mb
+
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 50: forward Total Tensor Used Memory:6348.2 Mb Total Allocated Memory:8567.5 Mb
+
++ | 12 * Size:(256, 4, 512)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(32, 25, 512)        | Memory: 9.375 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 4, 25)         | Memory: 0.5859 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 25, 4)         | Memory: 1.7578 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 32, 32)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 512)       | Memory: 75.0 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(25, 256, 4)         | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
++ | 18 * Size:(256, 512, 4)        | Memory: 36.0 M | <class 'torch.Tensor'> | torch.float32
++ | 24 * Size:(512, 32, 32)        | Memory: 48.0 M | <class 'torch.Tensor'> | torch.float32
++ | 6 * Size:(256, 25, 25)        | Memory: 3.6621 M | <class 'torch.Tensor'> | torch.float32
++ | 26 * Size:(32, 25, 32)         | Memory: 2.5390 M | <class 'torch.Tensor'> | torch.float32
++ | 12 * Size:(800, 32)            | Memory: 1.1718 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(256, 512, 4)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+- | 6 * Size:(256, 4, 512)        | Memory: 12.0 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 25, 32)         | Memory: 0.0976 M | <class 'torch.Tensor'> | torch.float32
+- | 12 * Size:(512, 32, 32)        | Memory: 24.0 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 56: forward Total Tensor Used Memory:6492.5 Mb Total Allocated Memory:8815.4 Mb
+
++ | 2 * Size:(32, 25, 109)        | Memory: 0.6652 M | <class 'torch.Tensor'> | torch.float32
+- | 1 * Size:(32, 25, 109)        | Memory: 0.3326 M | <class 'torch.Tensor'> | torch.float32
+
+At /mnt/d/code/NNDL_Project/model/decoder/transformer_decoder.py line 60: forward Total Tensor Used Memory:6492.9 Mb Total Allocated Memory:8815.7 Mb
+
