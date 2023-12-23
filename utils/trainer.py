@@ -59,11 +59,12 @@ def cts_train(train_dataloader, config:Config, ):
                                 embed_size=config.embed_size,
                                 num_head=config.num_head,
                                 num_encoder_layer=config.num_decoder,
-                                num_decoder_layer=config.num_decoder, ).to(device)
+                                num_decoder_layer=config.num_decoder,
+                                dim_ff=config.dim_ff,).to(device)
     logging.info('模型创建完成')
     # 损失函数和优化器
     model.train()
-    criterion = PackedCrossEntropyLoss()
+    criterion = PackedCrossEntropyLoss().to(device)
     optimizer = torch.optim.AdamW([{"params": filter(lambda p: p.requires_grad, model.encoder.parameters()),
                                     "lr": config.encoder_lr},
                                    {"params": filter(lambda p: p.requires_grad, model.decoder.parameters()),
@@ -81,28 +82,28 @@ def cts_train(train_dataloader, config:Config, ):
             start = time.time()
             imgs = imgs.to(device)
             caps = caps.to(device)
-            caplens = caplens.to(device)
-            print(f'Transfer data :{time.time()-start}| ',end='')
+            # caplens = caplens.to(device)
+            print(f'Transfer data :{time.time()-start:.4f}| ',end='')
             # 处理数据为7*Batchsize，扩展batch
             # forward 返回B*seq_length*vocab_size
             start = time.time()
             result = model(imgs, caps)
-            print(f'Forward :{time.time() - start}| ', end='')
+            print(f'Forward :{time.time() - start:.4f}| ', end='')
             # 计算损失
-            caps = torch.eye(config.vocab_size)[caps]  # onehot编码为向量
+            caps = torch.eye(config.vocab_size,device=device)[caps]  # onehot编码为向量
             loss = criterion(caps, result, caplens)
             # 累计损失
             num_samples += imgs.size(0)
             running_loss += imgs.size(0) * loss.item()
             # 反向传播
-            print(f'Iter {i},Loss {loss.item()}')
+            print(f'Iter {i},Loss {loss.item():.4f}')
             loss.backward()
             optimizer.step()
 
         average_loss = running_loss / num_samples
         # 日志记录训练信息
         if (epoch + 1) % 1 == 0:
-            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start}'
+            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start:.4f}'
             print(log_string)
             logging.info(log_string)
 
