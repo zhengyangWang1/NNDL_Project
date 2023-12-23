@@ -110,6 +110,13 @@ def cts_train(train_dataloader, config:Config, ):
             print(log_string)
             logging.info(log_string)
 
+        # 在每个epoch结束时保存
+        state = {
+            'epoch': epoch,
+            'model': model,
+            'optimizer': optimizer
+        }
+        torch.save(state, os.path.join(save_dir, 'checkpoint/transformer.ckpt'))
     # 绘图
 
     # 保存模型参数，
