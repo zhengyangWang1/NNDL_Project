@@ -13,31 +13,13 @@ from model.model import CNNTransformerModel
 from utils.config import Config
 import torch.optim as optim
 
+
 # 保存路径
-
 # 数据集读取
-
 # 按需要可能有多个train，也有可能有模型重构
-def train():
-    logging.basicConfig(filename='train.log', filemode="w",
-                        format="%(asctime)s : %(levelname)s : %(message)s",
-                        datefmt="%Y-%m-%d %H:%M:%S", level=logging.DEBUG)
-    logging.info('开始训练')
-    # 创建保存路径
-
-    # 读取模型参数config.json
-
-    # 打印参数
-    # 模型创建
-    # 模型训练
-
-    # 绘图
-
-    # 保存模型参数，模型结构，配置，日志
-    pass
 
 
-def cts_train(train_dataloader, config:Config, ):
+def cts_train(train_dataloader, config: Config, ):
     # 设定保存路径变量
     time_str = time.strftime('%m-%d_%H-%M', time.localtime())
     save_dir = os.path.join('checkpoints', time_str + 'CNNTransformer')
@@ -62,7 +44,7 @@ def cts_train(train_dataloader, config:Config, ):
                                 num_head=config.num_head,
                                 num_encoder_layer=config.num_decoder,
                                 num_decoder_layer=config.num_decoder,
-                                dim_ff=config.dim_ff,).to(device)
+                                dim_ff=config.dim_ff, ).to(device)
     logging.info('模型创建完成')
     # 损失函数和优化器
     model.train()
@@ -78,6 +60,7 @@ def cts_train(train_dataloader, config:Config, ):
         batch_start = time.time()
 
         for i, (imgs, caps, caplens) in enumerate(train_dataloader):
+            print(f'Iter{i} | ',end='')
             # 清空优化器梯度
             optimizer.zero_grad()
             # 设备转移
@@ -85,12 +68,11 @@ def cts_train(train_dataloader, config:Config, ):
             imgs = imgs.to(device)
             caps = caps.to(device)
             # caplens = caplens.to(device)
-            print(f'Transfer data :{time.time()-start:.4f}| ',end='')
+            print(f'Transfer data :{time.time() - start:.4f}| ', end='')
             # 处理数据为7*Batchsize，扩展batch
             # forward 返回B*seq_length*vocab_size
             start = time.time()
             result = model(imgs, caps)
-            print(f'Forward :{time.time() - start:.4f}| ', end='')
             # 计算损失
             # caps = torch.eye(config.vocab_size)[caps]  # onehot编码为向量
             eye_tensor = torch.eye(config.vocab_size, device=device)  # 在caps所在设备上生成one-hot向量
@@ -100,9 +82,10 @@ def cts_train(train_dataloader, config:Config, ):
             num_samples += imgs.size(0)
             running_loss += imgs.size(0) * loss.item()
             # 反向传播
-            print(f'Iter {i},Loss {loss.item():.4f}')
+            print(f'Loss {loss.item():.4f}| ', end='')
             loss.backward()
             optimizer.step()
+            print(f'Forward :{time.time() - start:.4f}| ')
 
         average_loss = running_loss / num_samples
         # 日志记录训练信息
@@ -187,4 +170,3 @@ def cnn_gru_train():
             'optimizer': optimizer
         }
         torch.save(state, last_checkpoint)
-
