@@ -202,7 +202,7 @@ if __name__ == '__main__':
     # 在项目根目录运行
     # data_process()
 
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
+    train_loader, test_loader = dataloader('data/deepfashion-mini', 8, workers=0)
 
     # 测试
     for i, (imgs, caps, caplens) in enumerate(train_loader):

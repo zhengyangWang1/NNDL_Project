@@ -9,8 +9,8 @@ from utils.data_loader import dataloader
 from model import CNNRNNStruct
 from model import ResNetEncoder, GRUDecoder
 from model.loss_function import PackedCrossEntropyLoss
-from ..model import CNNTransformerModel
-from .config import Config
+from model.model import CNNTransformerModel
+from utils.config import Config
 import torch.optim as optim
 
 # 保存路径
@@ -83,16 +83,18 @@ def cts_train(train_dataloader, config:Config, ):
             start = time.time()
             imgs = imgs.to(device)
             caps = caps.to(device)
-            caplens = caplens.to(device)
-            print(f'Transfer data :{time.time()-start}| ',end='')
+            # caplens = caplens.to(device)
+            print(f'Transfer data :{time.time()-start}| ', end='')
             # 处理数据为7*Batchsize，扩展batch
             # forward 返回B*seq_length*vocab_size
             start = time.time()
             result = model(imgs, caps)
             print(f'Forward :{time.time() - start}| ', end='')
             # 计算损失
-            caps = torch.eye(config.vocab_size)[caps]  # onehot编码为向量
-            loss = criterion(caps, result, caplens)
+            # caps = torch.eye(config.vocab_size)[caps]  # onehot编码为向量
+            eye_tensor = torch.eye(config.vocab_size, device=device)  # 在caps所在设备上生成one-hot向量
+            caps = eye_tensor[caps]
+            loss = criterion(result, caps, caplens)
             # 累计损失
             num_samples += imgs.size(0)
             running_loss += imgs.size(0) * loss.item()

@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchinfo
 import math
+import gc
 
 
 class TransformerDecoder(nn.Module):
@@ -42,6 +43,8 @@ class TransformerDecoder(nn.Module):
                                            tgt_mask=text_mask, # TODO 只关注之前的信息，应该有函数生成
                                            tgt_key_padding_mask=text_key_padding_mask) # TODO 不关注句子中的padding填充信息矩阵
         output = self.fc(decoded)
+        gc.collect()
+        torch.cuda.empty_cache()
         return output
 
 

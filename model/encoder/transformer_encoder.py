@@ -18,7 +18,8 @@ class TransformerEncoder(nn.Module):
         # resnet101 = models.resnet101(models.ResNet101_Weights.DEFAULT) # 0.16写法
         resnet101 = models.resnet101(pretrained=True)
         # TODO 修改下载的权重的保存位置 现在为/root/.cache/torch/hub/checkpoints/resnet101-63fe2227.pth
-        self.grid_extract = nn.Sequential(*(list(resnet101.children())[:-2]))
+        self.grid_extract = nn.Sequential(*(list(resnet101.children())[:-2]),
+                                          nn.Conv2d(2048, 512, kernel_size=1))
         for param in self.grid_extract.parameters():
             param.requires_grad = True # 需要微调
 
