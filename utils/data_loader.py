@@ -9,6 +9,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from torch.utils.data import Dataset
 from PIL import Image
 from torchvision import transforms
+import string
 
 """
 # 读取数据，预处理数据
@@ -190,9 +191,9 @@ def dataloader(data_dir, batch_size, workers=4):
 
     # 创建dataloader
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
+        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
 
     return train_loader, test_loader
 
@@ -201,7 +202,7 @@ if __name__ == '__main__':
     # 在项目根目录运行
     # data_process()
 
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
+    train_loader, test_loader = dataloader('data/deepfashion-mini', 8, workers=0)
 
     # 测试
     for i, (imgs, caps, caplens) in enumerate(train_loader):

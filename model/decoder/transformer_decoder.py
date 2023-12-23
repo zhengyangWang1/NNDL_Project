@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchinfo
 import math
+import gc
 
 
 class TransformerDecoder(nn.Module):
@@ -54,6 +55,7 @@ class TransformerDecoder(nn.Module):
         if self.tracker is not None:
             self.tracker.track()
         output = self.fc(decoded)
+
         if self.tracker is not None:
             self.tracker.track()
         return output
@@ -96,18 +98,43 @@ class Generator(nn.Module):
 
 if __name__ == '__main__':
     # 测试pytorch的transformer层实现 ，输出模型结构和结果
-    decoder_layer = nn.TransformerDecoderLayer(d_model=512, nhead=8)
-    transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=6)
-    memory = torch.rand(10, 32, 512)
-    tgt = torch.rand(20, 32, 512)
+    # decoder_layer = nn.TransformerDecoderLayer(d_model=512, nhead=8)
+    # transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=6)
+    # memory = torch.rand(10, 32, 512)
+    # tgt = torch.rand(20, 32, 512)
     # out = transformer_decoder(tgt, memory)
     # torchinfo.summary(decoder_layer,input_data=(tgt, memory))
     # torchinfo.summary(transformer_decoder, input_data=(tgt, memory))
 
     # 测试自己的模型
-    model = TransformerDecoder(vocab_size=110, embed_size=64,num_head=8)
-    # model = TransformerDecoder(vocab_size=128,embed_size=512)
-    # img_encoded = torch.rand(20, 2048, 512)
-    img_encoded = torch.rand(20, 1024, 64)
-    text = torch.ones(20, 32).to(torch.int)
+
+    model = TransformerDecoder(vocab_size=128, embed_size=512, num_head=8)
+    img_encoded = torch.rand(8, 1024, 512)
+    text = torch.ones(8, 32).to(torch.int)
     torchinfo.summary(model, input_data=(img_encoded, text))
+
+'''
+===============================================================================================
+TransformerDecoder                            [8, 32, 128]              4,204,032
+├─Embedding: 1-1                              [8, 32, 512]              65,536
+├─TransformerDecoder: 1-2                     [8, 32, 512]              --
+│    └─ModuleList: 2-1                        --                        --
+│    │    └─TransformerDecoderLayer: 3-1      [8, 32, 512]              4,204,032
+│    │    └─TransformerDecoderLayer: 3-2      [8, 32, 512]              4,204,032
+│    │    └─TransformerDecoderLayer: 3-3      [8, 32, 512]              4,204,032
+│    │    └─TransformerDecoderLayer: 3-4      [8, 32, 512]              4,204,032
+│    │    └─TransformerDecoderLayer: 3-5      [8, 32, 512]              4,204,032
+│    │    └─TransformerDecoderLayer: 3-6      [8, 32, 512]              4,204,032
+├─Linear: 1-3                                 [8, 32, 128]              65,664
+===============================================================================================
+Total params: 29,559,424
+Trainable params: 29,559,424
+Non-trainable params: 0
+Total mult-adds (M): 101.98
+===============================================================================================
+Input size (MB): 16.78
+Forward/backward pass size (MB): 51.64
+Params size (MB): 50.99
+Estimated Total Size (MB): 119.41
+===============================================================================================
+'''
