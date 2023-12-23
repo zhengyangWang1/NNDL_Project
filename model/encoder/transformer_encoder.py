@@ -12,7 +12,9 @@ class TransformerEncoder(nn.Module):
     def __init__(self,
                  grid_embed_size,
                  num_head,
-                 num_encoder_layer=6, ):
+                 num_encoder_layer=6,
+                 dim_ff=512,
+                 tracker=None):
         super(TransformerEncoder, self).__init__()
         # CNN网格表示生成 采用方案1的resnet101作为网格表示提取器，返回网格表示 (batchsize,2048,7,7)
         # resnet101 = models.resnet101(models.ResNet101_Weights.DEFAULT) # 0.16写法
@@ -21,7 +23,7 @@ class TransformerEncoder(nn.Module):
         self.grid_extract = nn.Sequential(*(list(resnet101.children())[:-2]),
                                           nn.Conv2d(2048, 512, kernel_size=1))
         for param in self.grid_extract.parameters():
-            param.requires_grad = True # 需要微调
+            param.requires_grad = True  # 需要微调
 
         # 图像网格embedding
         self.flatten = nn.Flatten(2, 3)
@@ -32,24 +34,35 @@ class TransformerEncoder(nn.Module):
         # d_model 是特征数量 nhead是多头自注意力的头数
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=grid_embed_size,
                                                         nhead=num_head,
+                                                        dim_feedforward=dim_ff,
                                                         batch_first=True)
         # 堆叠多层transformer encoder
         self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_encoder_layer)
+        self.tracker = tracker
 
     def forward(self, img, img_mask=None):
         """TODO img_mask?
         :param img: (batchsize,3,224,224)
         :return: (batchsize,2048,embed_size)
         """
-        # B*3*224*224 -> B*2048*7*7
-        grid_representation = self.grid_extract(img)
-        grid_representation = self.flatten(grid_representation)
+        # B*3*224*224 -> B*2048*49
+        if self.tracker is not None:
+            self.tracker.track()
+        grid_representation = self.flatten(self.grid_extract(img))
         # B*2048*7*7 -> B*2048*64
+        # 大小 121Mb * batch_size
+        if self.tracker is not None:
+            self.tracker.track()
         grid_embedding = self.grid_embed(grid_representation)
+        # del grid_representation
+        # 大小 121Mb * batch_size
+        if self.tracker is not None:
+            self.tracker.track()
         # B*2048*64 -> B*2048*64
-        gc.collect()
-        torch.cuda.empty_cache()
         encoded = self.transformer_encoder(grid_embedding)
+        # 大小 121Mb * batch_size
+        if self.tracker is not None:
+            self.tracker.track()
         return encoded
 
 
@@ -78,7 +91,7 @@ class GridEmbedding(nn.Module):
 
 
 if __name__ == '__main__':
-    encoder_layer = nn.TransformerEncoderLayer(d_model=64, nhead=8)
+    encoder_layer = nn.TransformerEncoderLayer(d_model=32, nhead=8, dim_feedforward=512)
     '''
     d_model （int）- 输入中预期特征的数量（必填）。
     nhead （int）- 多头注意力模型中的头数（必填）。
@@ -91,9 +104,9 @@ if __name__ == '__main__':
     bias (bool) - 如果设置为 False，线性层和 LayerNorm 层将不会学习加法偏置。默认值：默认为 True。
     '''
     transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=6)
-    src = torch.rand(10, 32, 512)
-    # out = encoder_layer(src)
-    # torchinfo.summary(encoder_layer, input_data=src)
+    src = torch.rand(8, 2048, 32)
+    out = encoder_layer(src)
+    # torchinfo.summary(encoder_layer, depth=10, input_data=src)
 
     # 测试编码器
     model = TransformerEncoder(64, 8)

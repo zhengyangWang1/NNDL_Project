@@ -9,7 +9,7 @@ class Config:
         self.encoder_lr = 0.001
         self.decoder_lr = 0.005
         self.num_epoch = 10
-        self.batch_size = 64
+        self.batch_size = 8
 
         # CNNRNN类
 
@@ -17,6 +17,7 @@ class Config:
         self.vocab_size = 109
         self.embed_size = 32
         self.num_head = 8
+        self.dim_ff = 512
         self.num_encoder = 6
         self.num_decoder = 6
         pass

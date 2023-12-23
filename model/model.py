@@ -1,8 +1,12 @@
 import torch
 import torch.nn as nn
 import torchinfo
+
 from .encoder import TransformerEncoder, ResNetEncoder
 from .decoder import TransformerDecoder, GRUDecoder
+from utils.gpu_mem_track import MemTracker
+
+gpu_tracker = MemTracker()
 
 
 class CNNRNNStruct(nn.Module):
@@ -24,7 +28,8 @@ class CNNTransformerModel(nn.Module):
                  embed_size=64,
                  num_head=8,
                  num_encoder_layer=6,
-                 num_decoder_layer=6, ):
+                 num_decoder_layer=6,
+                 dim_ff=512):
         """
         :param vocab_size: 文本词典的大小
         :param embed_size: embedding向量维度 必须能够被num_head整除
@@ -36,11 +41,15 @@ class CNNTransformerModel(nn.Module):
         assert embed_size % num_head == 0, "embedding_size不能被num_head整除"
         self.encoder = TransformerEncoder(embed_size,
                                           num_head,
-                                          num_encoder_layer)
+                                          num_encoder_layer,
+                                          dim_ff=dim_ff,
+                                          tracker=gpu_tracker, )
         self.decoder = TransformerDecoder(vocab_size,
                                           embed_size,
                                           num_head,
-                                          num_decoder_layer)
+                                          num_decoder_layer,
+                                          dim_ff=dim_ff,
+                                          tracker=gpu_tracker, )
 
     def forward(self, image, text):
         """
@@ -50,9 +59,9 @@ class CNNTransformerModel(nn.Module):
         """
         # B*3*224*224 -> B*2048*embed_size
         img_encoded = self.encoder(image)
+        gpu_tracker.track()
         # B*2048*embed_size,(B*seq_length->B*seq_length*embed_size) -> B*seq_length*vocab_size 词的onehot向量
-        decoded = self.decoder(img_encoded, text)
-        return decoded
+        return self.decoder(img_encoded, text)
 
 
 class Generator(nn.Module):
