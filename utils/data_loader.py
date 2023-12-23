@@ -67,6 +67,9 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
     vocab['<end>'] = 2  # 结束符号
     vocab['<unk>'] = 3  # 未知词汇
 
+    sen_count = Counter()  # test 图像对应描述数量计数器
+    len_count = Counter()  # test 描述长度计数器
+
     def process(data):
         """返回处理好的图像描述列表和文本列表 长度为N和N*captions_per_image"""
         img_paths = []
@@ -77,6 +80,7 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
 
             # 处理文本
             sentences = sent_tokenize(description)  # 将段落描述分为句子
+            sen_count.update([len(sentences)])
             if len(sentences) < captions_per_image:
                 # 如果该图片对应的描述数量不足，则补足
                 for _ in range(captions_per_image - len(sentences)):
@@ -91,6 +95,7 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
                 words = word_tokenize(sentence.lower())  # 转换为小写并分词
                 sequence = [vocab['<start>']] + [vocab.get(word, vocab['<unk>']) for word in words] + [
                     vocab['<end>']]  # 前面加上start 后面加上end 中间没有查找到的转换为unk
+                len_count.update([len(sequence)])
                 sequences.append(sequence)
         return img_paths, sequences
 
@@ -109,6 +114,9 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
     with open(os.path.join(data_file, 'test_data.json'), 'w') as test_file:
         json.dump(test_data, test_file, indent=2)
 
+    print(f'词典大小{len(vocab)}')
+    print(f'训练数据集 图像{len(train_data["IMAGES"])} 文本{len(train_data["CAPTIONS"])}')
+    print(f'测试数据集 图像{len(test_data["IMAGES"])} 文本{len(test_data["CAPTIONS"])}')
     print('---------- Data preprocess successfully! ----------')
 
 
@@ -130,28 +138,27 @@ class CustomDataset(Dataset):
         self.transform = transform
         self.caption_per_image = captions_per_image
         self.max_len = max_len
-        self.data_size = len(self.data['CAPTIONS'])
+        self.data_size = len(self.data['CAPTIONS'])  # 定义为caption的描述
 
     def __len__(self):
         return self.data_size
 
     def __getitem__(self, i):
-        # 读取
+        # 读取图像 一个图像对应caption_per_image条句子
         img = Image.open(self.data['IMAGES'][i // self.caption_per_image]).convert('RGB')
+        # 图像预处理
         if self.transform is not None:
             img = self.transform(img)
 
-        # print(self.data['CAPTIONS'][i])
-
-        # 填充文本描述的长度
+        # 每条文本描述的长度
         caplen = len(self.data['CAPTIONS'][i])
-        # if caplen > self.max_len:
+
+        # 填充caption，对齐长度
         # print(self.data['CAPTIONS'][i])
+        # print([self.vocab['<pad>']] * (self.max_len - caplen))
+        caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len - caplen))
 
-        caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len + 2 - caplen))
-        # # TODO: 使用packed_sequence处理
-        # caption = self.data['CAPTIONS'][i]
-
+        # batch_size,3,224,224  batch_size,25  batch_size
         return img, caption, caplen
 
 
@@ -193,13 +200,13 @@ def dataloader(data_dir, batch_size, workers=4):
 
 if __name__ == '__main__':
     # 在项目根目录运行
-    data_process()
+    # data_process()
+
     train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
 
     # 测试
-    # for batch_data in train_loader:
-    #     # print(batch_data)
-    #     inputs, labels = batch_data
+    for i, (imgs, caps, caplens) in enumerate(train_loader):
+        pass
 
     # ------------------------------------------------------------------
     # # 图片处理测试

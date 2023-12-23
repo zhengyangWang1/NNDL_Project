@@ -14,8 +14,8 @@ class Config:
         # CNNRNN类
 
         # CNNTTransformer类
-        self.vocab_size = 128
-        self.embed_size = 64
+        self.vocab_size = 109
+        self.embed_size = 32
         self.num_head = 8
         self.num_encoder = 6
         self.num_decoder = 6

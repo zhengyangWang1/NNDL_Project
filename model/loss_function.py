@@ -8,16 +8,16 @@ class PackedCrossEntropyLoss(nn.Module):
         super(PackedCrossEntropyLoss, self).__init__()
         self.loss_fn = nn.CrossEntropyLoss()
 
-    def forward(self, predictions, targets, lengths):
+    def forward(self, src, targets, lengths):
         """
-        参数：
-            predictions：按文本长度排序过的预测结果
-            targets：按文本长度排序过的文本描述
-            lengths：文本长度
+        :param src: 预测结果
+        :param targets: 文本描述
+        :param lengths: 文本描述长度列表
+        :return:
         """
-        predictions = pack_padded_sequence(predictions, lengths, batch_first=True)[0]
-        targets = pack_padded_sequence(targets, lengths, batch_first=True)[0]
-        return self.loss_fn(predictions, targets)
+        src = pack_padded_sequence(src, lengths, batch_first=True, enforce_sorted=False)[0]
+        targets = pack_padded_sequence(targets, lengths, batch_first=True, enforce_sorted=False)[0]
+        return self.loss_fn(src, targets)
 
 
 # FIXME follow https://github.com/ruotianluo/self-critical.pytorch/blob/master/captioning/modules/losses.py
