@@ -8,6 +8,7 @@ import torch.nn as nn
 
 from ..model import CNNTransformerModel
 from .config import Config
+from ..model import PackedCrossEntropyLoss
 
 
 # 保存路径
@@ -39,14 +40,14 @@ def cts_train(train_dataloader, config_path=None, ):
     time_str = time.strftime('%m-%d_%H-%M', time.localtime())
     save_dir = os.path.join('checkpoints', time_str + 'CNNTransformer')
     model_path = 'model.pth'
-    config_path = 'config.json' if config_path == None else config_path # 如果没有指定就使用著文件目录的config.json
+    config_path = 'config.json' if config_path == None else config_path  # 如果没有指定就使用著文件目录的config.json
     # 设定运行设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
     # 创建保存路径
     os.makedirs(save_dir, exist_ok=True)
     # 日志记录
-    logging.basicConfig(filename='train.log', filemode="w",
+    logging.basicConfig(filename=os.path.join(save_dir, 'train.log'), filemode="w",
                         format="%(asctime)s : %(levelname)s : %(message)s",
                         datefmt="%Y-%m-%d %H:%M:%S", level=logging.DEBUG)
     logging.info('开始训练')
@@ -60,10 +61,13 @@ def cts_train(train_dataloader, config_path=None, ):
                                 num_encoder_layer=config.num_decoder,
                                 num_decoder_layer=config.num_decoder, ).to(device)
     logging.info('模型创建完成')
-    # TODO 损失函数和优化器
+    # 损失函数和优化器
     model.train()
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+    criterion = PackedCrossEntropyLoss()
+    optimizer = torch.optim.AdamW([{"params": filter(lambda p: p.requires_grad, model.encoder.parameters()),
+                                    "lr": config.encoder_lr},
+                                   {"params": filter(lambda p: p.requires_grad, model.decoder.parameters()),
+                                    "lr": config.decoder_lr}])
     # 模型训练
     for epoch in range(config.num_epoch):
         num_samples = 0
@@ -76,11 +80,14 @@ def cts_train(train_dataloader, config_path=None, ):
             caps = caps.to(device)
             caplens = caplens.to(device)
             # 处理数据为5*Batchsize，扩展batch
-            # forward
+            # forward 返回B*seq_length*vocab_size
             result = model(imgs, caps)
-            # TODO 计算损失
-            loss = criterion(result)
+            # 计算损失
+            caps = torch.eye(config.vocab_size)[caps]  # onehot编码为向量
+            loss = criterion(caps, result, caplens)
             # 累计损失
+            num_samples += imgs.size(0)
+            running_loss += imgs.size(0) * loss.item()
             # 反向传播
             loss.backward()
             optimizer.step()
@@ -100,6 +107,6 @@ def cts_train(train_dataloader, config_path=None, ):
     with open(os.path.join(save_dir, 'model_structure.txt'), 'w') as f:  # 保存模型层级结构
         f.write(str(model))
     # 配置
-    config.save_config(os.path.join(save_dir,'config.json'))
+    config.save_config(os.path.join(save_dir, 'config.json'))
     # 日志
     logging.info('模型训练完成')

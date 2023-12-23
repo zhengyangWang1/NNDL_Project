@@ -7,7 +7,8 @@ class ResNetEncoder(nn.Module):
     def __init__(self):
         super(ResNetEncoder, self).__init__()
         # 预训练的resnet101模型
-        resnet = models.resnet101(weights=models.ResNet101_Weights.DEFAULT)
+        # resnet = models.resnet101(weights=models.ResNet101_Weights.DEFAULT)
+        resnet = models.resnet101(pretrained=True)
 
         # 输出维度 batchsize 2048 7 7 网格表示    # * 解包：当*出现在可迭代对象前面时，它会将可迭代对象拆分为单独的元素。
         self.grid_representation_extractor = nn.Sequential(*(list(resnet.children())[:-2]))
