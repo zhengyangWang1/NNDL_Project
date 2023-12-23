@@ -2,6 +2,10 @@ import torch
 import torch.nn as nn
 import torchinfo
 from torchvision import models
+import gc
+
+gc.collect()
+torch.cuda.empty_cache()
 
 
 class TransformerEncoder(nn.Module):
@@ -42,6 +46,8 @@ class TransformerEncoder(nn.Module):
         # B*2048*7*7 -> B*2048*64
         grid_embedding = self.grid_embed(grid_representation)
         # B*2048*64 -> B*2048*64
+        gc.collect()
+        torch.cuda.empty_cache()
         encoded = self.transformer_encoder(grid_embedding)
         return encoded
 

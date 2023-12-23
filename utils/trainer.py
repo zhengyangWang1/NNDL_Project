@@ -35,12 +35,12 @@ def train():
     pass
 
 
-def cts_train(train_dataloader, config_path=None, ):
+def cts_train(train_dataloader, config:Config, ):
     # 设定保存路径变量
     time_str = time.strftime('%m-%d_%H-%M', time.localtime())
     save_dir = os.path.join('checkpoints', time_str + 'CNNTransformer')
     model_path = 'model.pth'
-    config_path = 'config.json' if config_path == None else config_path  # 如果没有指定就使用著文件目录的config.json
+    config_path = 'config.json'
     # 设定运行设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
@@ -52,8 +52,8 @@ def cts_train(train_dataloader, config_path=None, ):
                         datefmt="%Y-%m-%d %H:%M:%S", level=logging.DEBUG)
     logging.info('开始训练')
     # 读取配置
-    config = Config()
-    config.read_config(config_path)  # 读取参数，打印参数
+    # config = Config()
+    # config.read_config(config_path)  # 读取参数，打印参数
     # 模型创建
     model = CNNTransformerModel(vocab_size=config.vocab_size,
                                 embed_size=config.embed_size,
@@ -83,7 +83,7 @@ def cts_train(train_dataloader, config_path=None, ):
             caps = caps.to(device)
             caplens = caplens.to(device)
             print(f'Transfer data :{time.time()-start}| ',end='')
-            # 处理数据为5*Batchsize，扩展batch
+            # 处理数据为7*Batchsize，扩展batch
             # forward 返回B*seq_length*vocab_size
             start = time.time()
             result = model(imgs, caps)

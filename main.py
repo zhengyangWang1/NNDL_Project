@@ -3,23 +3,29 @@ import os
 import json
 import torch
 
-from utils.data_loader import dataloader,data_process
+from utils.data_loader import dataloader, data_process
 from utils.trainer import cts_train
+from utils.config import Config
 from model import PackedCrossEntropyLoss
-from model import ResNetEncoder, GRUDecoder,CNNRNNStruct
+from model import ResNetEncoder, GRUDecoder, CNNRNNStruct
 from model import CNNTransformerModel
 
 import nltk
+
 # nltk.download('punkt')
 
 
 if __name__ == '__main__':
     # 数据处理
-    data_process()
+    # data_process()
+    # 加载参数
+    config = Config()
+    config.read_config('config.json')  # 读取参数，打印参数
     # 数据加载
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
+    train_loader, test_loader = dataloader('data/deepfashion-mini', config.batch_size, workers=0)
+
     # 模型训练
-    cts_train(train_loader)
+    cts_train(train_loader, config)
 
     # data_dir = 'data/deepfashion-mini'
     # last_checkpoint = 'checkpoints/last_cnn_gru.ckpt'
