@@ -9,11 +9,15 @@ from model import PackedCrossEntropyLoss
 from model import ResNetEncoder, GRUDecoder,CNNRNNStruct
 from model import CNNTransformerModel
 
+import nltk
+# nltk.download('punkt')
+
+
 if __name__ == '__main__':
     # 数据处理
     data_process()
     # 数据加载
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=8)
+    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
     # 模型训练
     cts_train(train_loader)
 

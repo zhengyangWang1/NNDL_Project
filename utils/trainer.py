@@ -6,9 +6,9 @@ import logging
 import torch
 import torch.nn as nn
 
-from ..model import CNNTransformerModel
 from .config import Config
-from ..model import PackedCrossEntropyLoss
+from model import CNNTransformerModel
+from model import PackedCrossEntropyLoss
 
 
 # 保存路径
@@ -72,16 +72,22 @@ def cts_train(train_dataloader, config_path=None, ):
     for epoch in range(config.num_epoch):
         num_samples = 0
         running_loss = 0.0
+        batch_start = time.time()
+
         for i, (imgs, caps, caplens) in enumerate(train_dataloader):
             # 清空优化器梯度
             optimizer.zero_grad()
             # 设备转移
+            start = time.time()
             imgs = imgs.to(device)
             caps = caps.to(device)
             caplens = caplens.to(device)
+            print(f'Transfer data :{time.time()-start}| ',end='')
             # 处理数据为5*Batchsize，扩展batch
             # forward 返回B*seq_length*vocab_size
+            start = time.time()
             result = model(imgs, caps)
+            print(f'Forward :{time.time() - start}| ', end='')
             # 计算损失
             caps = torch.eye(config.vocab_size)[caps]  # onehot编码为向量
             loss = criterion(caps, result, caplens)
@@ -89,13 +95,14 @@ def cts_train(train_dataloader, config_path=None, ):
             num_samples += imgs.size(0)
             running_loss += imgs.size(0) * loss.item()
             # 反向传播
+            print(f'Iter {i},Loss {loss.item()}')
             loss.backward()
             optimizer.step()
 
         average_loss = running_loss / num_samples
         # 日志记录训练信息
         if (epoch + 1) % 1 == 0:
-            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}'
+            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start}'
             print(log_string)
             logging.info(log_string)
 

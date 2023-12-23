@@ -149,12 +149,13 @@ class CustomDataset(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        # 每条文本描述的长度 存储为列表
+        # 每条文本描述的长度
         caplen = len(self.data['CAPTIONS'][i])
 
         # 填充caption，对齐长度
-        caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len + 2 - caplen))
-        # caption = self.data['CAPTIONS'][i]
+        # print(self.data['CAPTIONS'][i])
+        # print([self.vocab['<pad>']] * (self.max_len - caplen))
+        caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len - caplen))
 
         # batch_size,3,224,224  batch_size,25  batch_size
         return img, caption, caplen
@@ -189,24 +190,21 @@ def dataloader(data_dir, batch_size, workers=4):
 
     # 创建dataloader
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers, pin_memory=True)
+        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
 
     return train_loader, test_loader
 
 
 if __name__ == '__main__':
     # 在项目根目录运行
-    data_process()
+    # data_process()
 
     train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
 
     # 测试
-    for batch_data in train_loader:
-        # print(batch_data)
-
-        img, caption, caplen = batch_data
+    for i, (imgs, caps, caplens) in enumerate(train_loader):
         pass
 
     # ------------------------------------------------------------------
