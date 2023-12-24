@@ -1,17 +1,21 @@
 {
-    "model_type": "CNN_GRU",
+    "use_model_type": "CNN_GRU",
     "vocab_size": 109,
     "encoder_lr": 0.0001,
     "decoder_lr": 0.0005,
-    "num_epoch": 10,
-    "batch_size": 8,
-    "img_dim": 2048,
-    "cap_dim": 512,
-    "hidden_size": 512,
-    "num_layers": 1,
-    "embed_size": 32,
-    "num_head": 8,
-    "dim_ff": 512,
-    "num_encoder": 6,
-    "num_decoder": 6
+    "num_epoch": 4,
+    "batch_size": 64,
+    "CNN_GRU": {
+        "img_dim": 2048,
+        "cap_dim": 512,
+        "hidden_size": 512,
+        "num_layers": 1
+    },
+    "CNN_Transformer": {
+        "embed_size": 32,
+        "num_head": 8,
+        "dim_ff": 512,
+        "num_encoder": 6,
+        "num_decoder": 6
+    }
 }
