@@ -44,11 +44,11 @@ def train(train_dataloader, config: Config, ):
     elif config.use_model_type == 'CNN_GRU':
         if checkpoint is None: # 模型没有断点
             encoder = ResNetEncoder()
-            decoder = GRUDecoder(config.CNN_GRU.img_dim,
-                                 config.CNN_GRU.cap_dim,
-                                 config.CNN_GRU.vocab_size,
-                                 config.CNN_GRU.hidden_size,
-                                 config.CNN_GRU.num_layers)
+            decoder = GRUDecoder(img_dim=config.CNN_GRU.img_dim,
+                                 cap_dim=config.CNN_GRU.cap_dim,
+                                 vocab_size=config.vocab_size,
+                                 hidden_size=config.CNN_GRU.hidden_size,
+                                 num_layers=config.CNN_GRU.num_layers)
             model = CNNRNNStruct(encoder, decoder).to(device)
             logging.info('模型创建完成')
         else: # 断点部分

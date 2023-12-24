@@ -1,7 +1,7 @@
 import os
 import json
 from dataclasses import dataclass
-
+from pprint import pprint
 
 @dataclass
 class ModelConfig:
@@ -55,8 +55,8 @@ class Config:
             else:
                 print(f'配置{key}未定义，请检查')
         # 检查实现
-        assert self.use_model_type in ['CNN_GRU', 'CNN_Transformer'], "没有这个模型的实现"
-        print(hparam)
+        assert self.use_model_type in ['CNN_GRU', 'CNN_Transformer'], f"没有{self.use_model_type}模型的实现"
+        pprint(hparam)
 
     def save_config(self, json_path):
         # 保存配置到json文件, 避免保存__name__等属性 好像没有
