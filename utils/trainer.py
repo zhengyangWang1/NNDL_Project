@@ -34,25 +34,26 @@ def train(train_dataloader, config: Config, ):
     # config.read_config(config_path)  # 读取参数，打印参数
     # 模型加载或创建
     checkpoint = None
-    if checkpoint is None:
-        if config.model_type == 'transformer':
-            model = CNNTransformerModel(vocab_size=config.vocab_size,
-                                        embed_size=config.embed_size,
-                                        num_head=config.num_head,
-                                        num_encoder_layer=config.num_decoder,
-                                        num_decoder_layer=config.num_decoder,
-                                        dim_ff=config.dim_ff, ).to(device)
-        else:
+    if config.model_type == 'CNN_Transformer':
+        model = CNNTransformerModel(vocab_size=config.vocab_size,
+                                    embed_size=config.embed_size,
+                                    num_head=config.num_head,
+                                    num_encoder_layer=config.num_decoder,
+                                    num_decoder_layer=config.num_decoder,
+                                    dim_ff=config.dim_ff, ).to(device)
+        logging.info('模型创建完成')
+    elif config.model_type == 'CNN_GRU':
+        if checkpoint is None:
             encoder = ResNetEncoder()
             decoder = GRUDecoder(config.img_dim, config.cap_dim, config.vocab_size, config.hidden_size,
                                  config.num_layers)
             model = CNNRNNStruct(encoder, decoder).to(device)
-        logging.info('模型创建完成')
-    else:
-        checkpoint = torch.load(checkpoint)
-        # start_epoch = checkpoint['epoch']
-        model = checkpoint
-        logging.info('模型加载完成')
+            logging.info('模型创建完成')
+        else:
+            checkpoint = torch.load(checkpoint)
+            # start_epoch = checkpoint['epoch']
+            model = checkpoint
+            logging.info('模型加载完成')
 
     # 损失函数和优化器
     criterion = PackedCrossEntropyLoss().to(device)
@@ -71,46 +72,47 @@ def train(train_dataloader, config: Config, ):
             # 清空优化器梯度
             optimizer.zero_grad()
             # 设备转移
-            start = time.time()
+            transfer_start = time.time()
             imgs = imgs.to(device)
             caps = caps.to(device)
-            # caplens = caplens.to(device)
-            print(f'Transfer data :{time.time() - start:.4f}| ', end='')
-            # 处理数据为7*Batchsize，扩展batch
             # forward 返回B*seq_length*vocab_size
-            start = time.time()
-            if config.model_type == 'transformer':
+            forward_start = time.time()
+            if config.model_type == 'CNN_Transformer':
                 result = model(imgs, caps)
-                eye_tensor = torch.eye(config.vocab_size, device=device)  # 在caps所在设备上生成one-hot向量
-                caps = eye_tensor[caps]
+                caps = torch.eye(config.vocab_size, device=device)[caps]  # 在caps所在设备上生成one-hot向量
                 loss = criterion(result, caps, caplens)
-            else:
+            elif config.model_type == 'CNN_GRU':
                 predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs, caps, caplens)
                 loss = criterion(predictions, sorted_captions[:, 1:], lengths)
-            print(f'Forward :{time.time() - start:.4f}| ', end='')
-
             # 累计损失
             num_samples += imgs.size(0)
-            running_loss += imgs.size(0) * loss.item()
+            running_loss += loss.item()  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
+            l = loss.item()
             # 反向传播
-            print(f'Iter {i},Loss {loss.item():.4f}')
             loss.backward()
             optimizer.step()
+            end = time.time()
+            if i % 50 == 0:
+                print(
+                    f'Iter {i}: Loss {l:.4f}|Transfer data :{forward_start - transfer_start:.2f}s|Forward :{end - forward_start:.2f}s| ')
 
         average_loss = running_loss / num_samples
         # 日志记录训练信息
         if (epoch + 1) % 1 == 0:
-            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start:.4f}'
+            log_string = f'Epoch: {epoch + 1}, Training Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start:.2f}s'
             print(log_string)
             logging.info(log_string)
 
+        torch.save(model.state_dict(), os.path.join(save_dir, model_path))
+        # torch.save(optimizer.state_dict(), os.path.join(save_dir, model_path))
+        # torch.save(criterion.state_dict(), os.path.join(save_dir, model_path))
         # 在每个epoch结束时保存
         state = {
             'epoch': epoch,
             'model': model,
             'optimizer': optimizer
         }
-        torch.save(state, os.path.join(save_dir, model_path))
+        torch.save(state, os.path.join(save_dir, 'model_state.pth'))
 
     # 模型结构
     with open(os.path.join(save_dir, 'model_structure.txt'), 'w') as f:  # 保存模型层级结构
@@ -120,7 +122,7 @@ def train(train_dataloader, config: Config, ):
     # 日志
     logging.info('模型训练完成')
 
-#
+
 # def cnn_gru_train():
 #     data_dir = 'data/deepfashion-mini'
 #     last_checkpoint = 'checkpoints/last_cnn_gru.ckpt'
