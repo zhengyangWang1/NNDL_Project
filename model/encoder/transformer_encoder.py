@@ -38,7 +38,7 @@ class TransformerEncoder(nn.Module):
                                                         batch_first=True)
         # 堆叠多层transformer encoder
         self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_encoder_layer)
-        self.tracker = tracker
+        # self.tracker = tracker
 
     def forward(self, img, img_mask=None):
         """TODO img_mask?
@@ -46,23 +46,23 @@ class TransformerEncoder(nn.Module):
         :return: (batchsize,2048,embed_size)
         """
         # B*3*224*224 -> B*2048*49
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         grid_representation = self.flatten(self.grid_extract(img))
         # B*2048*7*7 -> B*2048*64
         # 大小 121Mb * batch_size
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         grid_embedding = self.grid_embed(grid_representation)
         # del grid_representation
         # 大小 121Mb * batch_size
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         # B*2048*64 -> B*2048*64
         encoded = self.transformer_encoder(grid_embedding)
         # 大小 121Mb * batch_size
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         return encoded
 
 

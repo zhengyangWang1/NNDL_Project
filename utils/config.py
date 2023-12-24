@@ -5,16 +5,23 @@ import json
 class Config:
     def __init__(self):
         # 模型配置类default
+        # 模型种类
+        self.model_type = 'CNN_GRU'  # 'CNN_GRU' or 'CNN_Transformer'
+        self.vocab_size = 109
+
         # 一般超参数
-        self.encoder_lr = 0.001
-        self.decoder_lr = 0.005
+        self.encoder_lr = 0.0001
+        self.decoder_lr = 0.0005
         self.num_epoch = 10
         self.batch_size = 8
 
         # CNNRNN类
+        self.img_dim = 2048
+        self.cap_dim = 512
+        self.hidden_size = 512
+        self.num_layers = 1
 
         # CNNTTransformer类
-        self.vocab_size = 109
         self.embed_size = 32
         self.num_head = 8
         self.dim_ff = 512
@@ -32,6 +39,8 @@ class Config:
                 setattr(self, key, value)
             else:
                 print(f'配置{key}未定义，请检查')
+        # 检查实现
+        assert self.model_type in ['CNN_GRU', 'CNN_Transformer'], "没有这个模型的实现"
         print(hparam)
 
     def save_config(self, json_path):

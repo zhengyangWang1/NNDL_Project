@@ -30,7 +30,7 @@ class TransformerDecoder(nn.Module):
 
         # FIXME  编码onehot向量 对应输出(batchsize,seq_length,vocabsize) ？
         self.fc = nn.Linear(embed_size, vocab_size)
-        self.tracker=tracker
+        # self.tracker=tracker
         # self.softmax=nn.Softmax(dim=2)
 
     def forward(self, img_encoded, text, imgcode_mask=None, text_mask=None, text_key_padding_mask=None):
@@ -40,24 +40,24 @@ class TransformerDecoder(nn.Module):
         :return: (batchsize,seq_length,vocab_size) 输出拟合onehot向量计算cross entropy损失
         """
         # tgt_mask=None, memory_mask=None
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         text_embedding = self.embedding(text)
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         text_embedding = self.positional_embedding(text_embedding)
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         decoded = self.transformer_decoder(text_embedding,
                                            img_encoded,
                                            tgt_mask=text_mask, # TODO 只关注之前的信息，应该有函数生成
                                            tgt_key_padding_mask=text_key_padding_mask) # TODO 不关注句子中的padding填充信息矩阵
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         output = self.fc(decoded)
 
-        if self.tracker is not None:
-            self.tracker.track()
+        # if self.tracker is not None:
+        #     self.tracker.track()
         return output
 
 

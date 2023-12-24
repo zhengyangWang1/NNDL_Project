@@ -6,7 +6,7 @@ from .encoder import TransformerEncoder, ResNetEncoder
 from .decoder import TransformerDecoder, GRUDecoder
 from utils.gpu_mem_track import MemTracker
 
-gpu_tracker = MemTracker()
+# gpu_tracker = MemTracker()
 
 
 class CNNRNNStruct(nn.Module):
