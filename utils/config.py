@@ -5,16 +5,23 @@ import json
 class Config:
     def __init__(self):
         # 模型配置类default
+        # 模型种类
+        self.model_type = 'cnn_gnn'  # 'cnn_gnn' or 'transformer'
+        self.vocab_size = 109
+
         # 一般超参数
-        self.encoder_lr = 0.001
-        self.decoder_lr = 0.005
+        self.encoder_lr = 0.0001
+        self.decoder_lr = 0.0005
         self.num_epoch = 10
         self.batch_size = 8
 
         # CNNRNN类
+        self.img_dim = 2048
+        self.cap_dim = 512
+        self.hidden_size = 512
+        self.num_layers = 1
 
         # CNNTTransformer类
-        self.vocab_size = 109
         self.embed_size = 32
         self.num_head = 8
         self.dim_ff = 512

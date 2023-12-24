@@ -1,5 +1,4 @@
-from utils.trainer import cts_train
-from utils.trainer import cnn_gru_train
+from utils.trainer import train
 from utils.data_loader import dataloader
 from utils.config import Config
 
@@ -13,4 +12,4 @@ if __name__ == '__main__':
     train_loader, test_loader = dataloader('data/deepfashion-mini', config.batch_size, workers=0)
 
     # 模型训练
-    cts_train(train_loader, config)
+    train(train_loader, config)
