@@ -5,6 +5,8 @@ import json
 import logging
 import torch
 import torch.nn as nn
+from tqdm import tqdm
+
 from utils.data_loader import dataloader
 from model import CNNRNNStruct
 from model import ResNetEncoder, GRUDecoder
@@ -42,7 +44,7 @@ def train(train_dataloader, config: Config, ):
                                     dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
         logging.info('模型创建完成')
     elif config.use_model_type == 'CNN_GRU':
-        if checkpoint is None: # 模型没有断点
+        if checkpoint is None:  # 模型没有断点
             encoder = ResNetEncoder()
             decoder = GRUDecoder(img_dim=config.CNN_GRU.img_dim,
                                  cap_dim=config.CNN_GRU.cap_dim,
@@ -51,7 +53,7 @@ def train(train_dataloader, config: Config, ):
                                  num_layers=config.CNN_GRU.num_layers)
             model = CNNRNNStruct(encoder, decoder).to(device)
             logging.info('模型创建完成')
-        else: # 断点部分
+        else:  # 断点部分
             checkpoint = torch.load(checkpoint)
             # start_epoch = checkpoint['epoch']
             model = checkpoint
@@ -71,35 +73,42 @@ def train(train_dataloader, config: Config, ):
         num_samples = 0
         running_loss = 0.0
         batch_start = time.time()
-
-        for i, (imgs, caps, caplens) in enumerate(train_dataloader):
-            # 清空优化器梯度
-            optimizer.zero_grad()
-            # 设备转移
-            transfer_start = time.time()
-            imgs = imgs.to(device)
-            caps = caps.to(device)
-            # forward 返回B*seq_length*vocab_size
-            forward_start = time.time()
-            if config.use_model_type == 'CNN_Transformer':
-                result = model(imgs, caps)
-                caps = torch.eye(config.vocab_size, device=device)[caps]  # 在caps所在设备上生成one-hot向量
-                loss = criterion(result, caps, caplens)
-            elif config.use_model_type == 'CNN_GRU':
-                predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs, caps, caplens)
-                loss = criterion(predictions, sorted_captions[:, 1:], lengths)
-            # 累计损失
-            num_samples += imgs.size(0)
-            running_loss += loss.item()  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
-            l = loss.item()
-            # 反向传播
-            loss.backward()
-            optimizer.step()
-            end = time.time()
-            if i % 50 == 0:
-                log_string=f'Iter {i}: Loss {l:.4f}|Transfer data :{forward_start - transfer_start:.2f}s|Forward :{end - forward_start:.2f}s|'
-                print(log_string)
-                logging.info(log_string)
+        tqdm_param = {
+            'total': len(train_dataloader),
+            'mininterval': 0.5,
+            'dynamic_ncols': True,
+        }
+        with tqdm(enumerate(train_dataloader), **tqdm_param, desc='Training') as t:
+            for i, (imgs, caps, caplens) in t:
+                # 清空优化器梯度
+                optimizer.zero_grad()
+                # 设备转移
+                transfer_start = time.time()
+                imgs = imgs.to(device)
+                caps = caps.to(device)
+                # forward 返回B*seq_length*vocab_size
+                forward_start = time.time()
+                if config.use_model_type == 'CNN_Transformer':
+                    result = model(imgs, caps)
+                    caps = torch.eye(config.vocab_size, device=device)[caps]  # 在caps所在设备上生成one-hot向量
+                    loss = criterion(result, caps, caplens)
+                elif config.use_model_type == 'CNN_GRU':
+                    predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs, caps, caplens)
+                    loss = criterion(predictions, sorted_captions[:, 1:], lengths)
+                # 累计损失
+                num_samples += imgs.size(0)
+                running_loss += loss.item()  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
+                l = loss.item()
+                # 反向传播
+                loss.backward()
+                optimizer.step()
+                end = time.time()
+                # 进度条设置
+                pf = {'loss': f'{l:.4f}', }
+                t.set_postfix(pf)
+                if i % 30 == 0:  # 日志记录
+                    log_string = f'Iter {i:>5}: Loss {l:.4f}|Transfer data :{forward_start - transfer_start:.2f}s|Forward :{end - forward_start:.2f}s|'
+                    logging.info(log_string)
 
         average_loss = running_loss / num_samples
         # 日志记录训练信息
@@ -127,5 +136,3 @@ def train(train_dataloader, config: Config, ):
     config.save_config(os.path.join(save_dir, 'config.json'))
     # 保存日志
     logging.info('模型训练完成')
-
-
