@@ -10,6 +10,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 from torchvision import transforms
 import string
+from tqdm import tqdm
 
 """
 # 读取数据，预处理数据
@@ -202,12 +203,26 @@ if __name__ == '__main__':
     # 在项目根目录运行
     # data_process()
 
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 8, workers=0)
+    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
 
     # 测试
-    for i, (imgs, caps, caplens) in enumerate(train_loader):
-        pass
-
+    tqdm_param = {
+        'total': len(train_loader),
+        'mininterval': 0.5,
+        # 'miniters': 3,
+        # 'unit':'iter',
+        'dynamic_ncols':True,
+        # 'desc':'Training',
+        # 'postfix':'final'
+    }
+    with tqdm(enumerate(train_loader), **tqdm_param,desc='Training') as t:
+        for i, (imgs, caps, caplens) in t:
+            pf = {
+                'i': i,
+                'loss': 0.12,
+                'acc': 0.33
+            }
+            t.set_postfix(pf)
     # ------------------------------------------------------------------
     # # 图片处理测试
     # custom_transform = transforms.Compose([
