@@ -6,14 +6,14 @@ class Config:
     def __init__(self):
         # 模型配置类default
         # 模型种类
-        self.model_type = 'cnn_gnn'  # 'cnn_gnn' or 'transformer'
-        self.vocab_size = 109
+        self.model_type = 'cnn_gru'  # 'cnn_gru' or 'transformer'
 
         # 一般超参数
+        self.vocab_size = 109
         self.encoder_lr = 0.0001
         self.decoder_lr = 0.0005
         self.num_epoch = 10
-        self.batch_size = 8
+        self.batch_size = 64
 
         # CNNRNN类
         self.img_dim = 2048
