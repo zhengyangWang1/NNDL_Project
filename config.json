@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
     "model_type": "cnn_gru",
+=======
+    "model_type": "CNN_GRU",
+>>>>>>> f1b7e04434c9d7f85ac5ab48d9914ec9bc43e957
     "vocab_size": 109,
     "encoder_lr": 0.0001,
     "decoder_lr": 0.0005,

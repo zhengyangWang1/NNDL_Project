@@ -6,7 +6,8 @@ class Config:
     def __init__(self):
         # 模型配置类default
         # 模型种类
-        self.model_type = 'cnn_gru'  # 'cnn_gru' or 'transformer'
+
+        self.model_type = 'CNN_GRU'  # 'CNN_GRU' or 'CNN_Transformer'
 
         # 一般超参数
         self.vocab_size = 109
@@ -39,6 +40,8 @@ class Config:
                 setattr(self, key, value)
             else:
                 print(f'配置{key}未定义，请检查')
+        # 检查实现
+        assert self.model_type in ['CNN_GRU', 'CNN_Transformer'], "没有这个模型的实现"
         print(hparam)
 
     def save_config(self, json_path):
