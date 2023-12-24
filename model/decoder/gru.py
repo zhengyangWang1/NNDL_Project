@@ -61,7 +61,8 @@ class GRUDecoder(nn.Module):
 
         # 输入序列长度减1，因为最后一个时刻不需要预测下一个词
         lengths = sorted_cap_lens.cpu().numpy() - 1
-        predictions = torch.zeros(batch_size, lengths[0], self.fc.out_features).to(captions.device)  # batch_size*max_length*out_size
+        predictions = torch.zeros(batch_size, lengths[0], self.fc.out_features).to(
+            captions.device)  # batch_size*max_length*vocab_size
 
         # 对数据进行embedding操作
         img = image_code.reshape(image_code.size(0), -1)  # (batch_size, 2048*7*7)
@@ -80,8 +81,8 @@ class GRUDecoder(nn.Module):
             x = torch.cat((img, cap), dim=-1).unsqueeze(0)  # 在第0维增加时间步维度
 
             # 前向传播过程
-            output, hidden_state = self.gru(x, hidden_stat)
-            pred = self.fc(self.dropout(output.squeeze(0)))
+            output, hidden_state = self.gru(x, hidden_stat)  # output:(1, real_batch_size, hidden_size)
+            pred = self.fc(self.dropout(output.squeeze(0)))  # (real_batch_size, vocab_size)
 
             predictions[:real_batch_size, step, :] = pred
 
@@ -89,6 +90,4 @@ class GRUDecoder(nn.Module):
 
 
 if __name__ == '__main__':
-
     pass
-
