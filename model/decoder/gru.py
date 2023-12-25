@@ -53,6 +53,15 @@ class GRUDecoder(nn.Module):
             self.gru.hidden_size).permute(1, 0, 2)  # 1*batch_size*hidden_size
         return image_code, captions, sorted_cap_lens, sorted_cap_indices, hidden_state
 
+    def forward_step(self, img, cap, hidden_stat):
+        # 使用真实数据的img，cap作为输入，而不是使用模型自己的预测结果(Teacher Forcing模式)
+        x = torch.cat((img, cap), dim=-1).unsqueeze(0)  # 在第0维增加时间步维度
+
+        # 前向传播过程
+        output, hidden_state = self.gru(x, hidden_stat)  # output:(1, real_batch_size, hidden_size)
+        pred = self.fc(self.dropout(output.squeeze(0)))  # (real_batch_size, vocab_size)
+        return pred, hidden_state
+
     def forward(self, img, captions, cap_lens):
         # 初始化隐藏状态
         image_code, captions, sorted_cap_lens, sorted_cap_indices, hidden_state \
@@ -73,16 +82,10 @@ class GRUDecoder(nn.Module):
         for step in range(lengths[0]):
             # 只取有意义的进行训练
             real_batch_size = np.where(lengths > step)[0].shape[0]
-            img = img_embeds[:real_batch_size]
-            cap = cap_embeds[:real_batch_size, step, :]
-            hidden_stat = hidden_state[:, :real_batch_size, :].contiguous()
-
-            # 使用真实数据的img，cap作为输入，而不是使用模型自己的预测结果(Teacher Forcing模式)
-            x = torch.cat((img, cap), dim=-1).unsqueeze(0)  # 在第0维增加时间步维度
-
-            # 前向传播过程
-            output, hidden_state = self.gru(x, hidden_stat)  # output:(1, real_batch_size, hidden_size)
-            pred = self.fc(self.dropout(output.squeeze(0)))  # (real_batch_size, vocab_size)
+            pred, hidden_state = self.forward_step(
+                img_embeds[:real_batch_size],
+                cap_embeds[:real_batch_size, step, :],
+                hidden_state[:, :real_batch_size, :].contiguous())
 
             predictions[:real_batch_size, step, :] = pred
 

@@ -139,6 +139,32 @@ def train(train_dataloader, test_dataloader, config: Config, ):
     logging.info('----------模型训练完成----------')
 
 
+# 测试beam search用
+def evaluation(test_loader, config: Config, vocab):
+    checkpoint = torch.load('checkpoints/CNNTransformer/model.pth')
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # encoder = ResNetEncoder()
+    # decoder = GRUDecoder(img_dim=config.CNN_GRU.img_dim,
+    #                      cap_dim=config.CNN_GRU.cap_dim,
+    #                      vocab_size=config.vocab_size,
+    #                      hidden_size=config.CNN_GRU.hidden_size,
+    #                      num_layers=config.CNN_GRU.num_layers)
+    # model = CNNRNNStruct(encoder, decoder).to(device)
+    model = CNNTransformerModel(vocab_size=config.vocab_size,
+                                embed_size=config.CNN_Transformer.embed_size,
+                                num_head=config.CNN_Transformer.num_head,
+                                num_encoder_layer=config.CNN_Transformer.num_decoder,
+                                num_decoder_layer=config.CNN_Transformer.num_decoder,
+                                dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
+    model.load_state_dict(checkpoint)
+    model.eval()
+    for i, (imgs, caps, caplens) in enumerate(test_loader):
+        with torch.no_grad():
+            # 通过束搜索，生成候选文本
+            texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, config.vocab_size, vocab)
+            print(texts)
+
+
 def evaluate(test_dataloader, config, model=None, model_path=None):
     # 给定模型或者给出加载模型路径，否则报错
     assert (model is None) ^ (model_path is None), '必须指定模型或者给出加载模型路径'

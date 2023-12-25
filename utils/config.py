@@ -18,8 +18,10 @@ class Config:
         self.vocab_size = 109
         self.encoder_lr = 0.0001
         self.decoder_lr = 0.0005
-        self.num_epoch = 4
+        self.num_epoch = 5
         self.batch_size = 64
+        self.beam_k = 5
+        self.max_len = 25
 
         self.CNN_GRU = ModelConfig()
         self.CNN_GRU.img_dim = 2048
