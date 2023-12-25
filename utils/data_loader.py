@@ -194,7 +194,7 @@ def dataloader(data_dir, batch_size, workers=4):
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
+        test_dataset, batch_size=batch_size, shuffle=False, num_workers=workers)
 
     return train_loader, test_loader
 
