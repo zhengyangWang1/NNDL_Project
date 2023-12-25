@@ -10,7 +10,7 @@ from tqdm import tqdm
 from utils.data_loader import dataloader
 from model import CNNRNNStruct
 from model import ResNetEncoder, GRUDecoder
-from model.loss_function import PackedCrossEntropyLoss
+from model.loss_function import PackedCrossEntropyLoss, TokenCrossEntropyLoss
 from model.model import CNNTransformerModel
 from utils.config import Config
 import torch.optim as optim
@@ -44,6 +44,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                                     num_decoder_layer=config.CNN_Transformer.num_decoder,
                                     dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
         logging.info('模型创建完成')
+        criterion = TokenCrossEntropyLoss(padding_index=0).to(device)
     elif config.use_model_type == 'CNN_GRU':
         if checkpoint is None:  # 模型没有断点
             encoder = ResNetEncoder()
@@ -59,10 +60,10 @@ def train(train_dataloader, test_dataloader, config: Config, ):
             # start_epoch = checkpoint['epoch']
             model = checkpoint
             logging.info('模型加载完成')
+        criterion = PackedCrossEntropyLoss().to(device)
     else:
         raise ValueError("model_type not found")
-    # 损失函数和优化器
-    criterion = PackedCrossEntropyLoss().to(device)
+    # 优化器
     optimizer = torch.optim.AdamW([{"params": filter(lambda p: p.requires_grad, model.encoder.parameters()),
                                     "lr": config.encoder_lr},
                                    {"params": filter(lambda p: p.requires_grad, model.decoder.parameters()),
@@ -89,11 +90,11 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                 # forward 返回B*seq_length*vocab_size
                 # forward_start = time.time()
                 if config.use_model_type == 'CNN_Transformer':
-                    capsin = caps[:, :-1] # N,seqlength-1 相当于长度减1
-                    capsout = caps[:, 1:] # N,seqlength-1 相当于去掉start
-                    logits = model(imgs, capsin)
-                    capsout = torch.eye(config.vocab_size, device=device)[capsout]  # 在caps所在设备上生成one-hot向量
-                    loss = criterion(logits, capsout, caplens)
+                    capsin = caps[:, :-1]  # N,S-1 相当于长度减1
+                    capsout = caps[:, 1:]  # N,S-1 相当于去掉start标志
+                    logits = model(imgs, capsin) # logits N,S-1,vocab_size
+                    # capsout = torch.eye(config.vocab_size, device=device)[capsout]  # 在caps所在设备上生成one-hot向量
+                    loss = criterion(logits, capsout)
                 elif config.use_model_type == 'CNN_GRU':
                     predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs, caps, caplens)
                     loss = criterion(predictions, sorted_captions[:, 1:], lengths)
@@ -123,8 +124,6 @@ def train(train_dataloader, test_dataloader, config: Config, ):
         # 每个epoch之后测试模型
         evaluate(test_dataloader, config, model)
         model.train()
-
-        # torch.save(model.state_dict(), os.path.join(save_dir, 'model.pth'))
         # 在每个epoch结束时保存
         checkpoint = {
             'model': model.state_dict(),
@@ -182,13 +181,15 @@ def evaluate(test_dataloader, config, model=None, model_path=None):
     # 模型正常
     # TODO eval使用路径加载模型
     if config.use_model_type == 'CNN_Transformer':
+        criterion = TokenCrossEntropyLoss(padding_index=0).to(device)
         pass
     elif config.use_model_type == 'CNN_GRU':
+        criterion = PackedCrossEntropyLoss().to(device)
         pass
     model.to(device)
     logging.info('----------评估模型加载完成----------')
     # 加载损失函数
-    criterion = PackedCrossEntropyLoss().to(device)
+    # criterion = PackedCrossEntropyLoss().to(device)
     model.eval()
     with torch.no_grad():
         num_samples = 0
@@ -205,9 +206,10 @@ def evaluate(test_dataloader, config, model=None, model_path=None):
                 imgs = imgs.to(device)
                 caps = caps.to(device)
                 if config.use_model_type == 'CNN_Transformer':
-                    result = model(imgs, caps)
-                    caps = torch.eye(config.vocab_size, device=device)[caps]  # 在caps所在设备上生成one-hot向量
-                    loss = criterion(result, caps, caplens)
+                    capsin = caps[:, :-1]  # N,S-1 相当于长度减1
+                    capsout = caps[:, 1:]  # N,S-1 相当于去掉start标志
+                    logits = model(imgs, capsin)  # logits N,S-1,vocab_size
+                    loss = criterion(logits, capsout)
                 elif config.use_model_type == 'CNN_GRU':
                     predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs, caps, caplens)
                     loss = criterion(predictions, sorted_captions[:, 1:], lengths)

@@ -27,12 +27,10 @@ class TokenCrossEntropyLoss(nn.Module):
 
     def forward(self, src, tgt):
         """ 其实也是在词的维度上求得的损失
-        :param src: 预测结果 形状 N,S,vocab
-        :param tgt: 文本描述 形状 N,S
-        :return:
+        :param src: 预测结果 形状 N,S,vocab 类型float32
+        :param tgt: 文本描述 形状 N,S 类型int
+        :return: loss
         """
-        # src = pack_padded_sequence(src, lengths, batch_first=True, enforce_sorted=False)[0]
-        # targets = pack_padded_sequence(targets, lengths, batch_first=True, enforce_sorted=False)[0]
         return self.loss_fn(src.reshape(-1, src.shape[-1]), tgt.reshape(-1))
 
 
