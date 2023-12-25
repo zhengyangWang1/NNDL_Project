@@ -26,7 +26,7 @@ class TokenCrossEntropyLoss(nn.Module):
         self.loss_fn = nn.CrossEntropyLoss(ignore_index=padding_index)
 
     def forward(self, src, tgt):
-        """ 其实也是在词的维度上求得的损失
+        """ 其实也是在词的维度上求得的损失 TokenWise
         :param src: 预测结果 形状 N,S,vocab 类型float32
         :param tgt: 文本描述 形状 N,S 类型int
         :return: loss

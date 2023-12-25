@@ -41,7 +41,7 @@ class TransformerEncoder(nn.Module):
         # self.tracker = tracker
 
     def forward(self, img, img_mask=None):
-        """TODO img_mask?
+        """img_mask No
         :param img: (batchsize,3,224,224)
         :return: (batchsize,2048,embed_size)
         """

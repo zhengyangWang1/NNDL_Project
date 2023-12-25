@@ -3,14 +3,14 @@ import json
 import torch
 import random
 import numpy as np
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 from collections import Counter
 from nltk.tokenize import sent_tokenize, word_tokenize
 from torch.utils.data import Dataset
+from torch.nn import Transformer
 from PIL import Image
 from torchvision import transforms
-import string
-from tqdm import tqdm
 
 """
 # 读取数据，预处理数据
@@ -18,8 +18,8 @@ from tqdm import tqdm
 # 描述需要预处理，文本描述不是单一句子，需要转化为单一句子，处理成向量
 
 主要函数：
-data_process: 进行数据预处理
-data_loader: 将预处理的数据定义为train_loader和test_loader
+data_preprocess: 进行数据预处理
+get_data_loader: 将预处理的数据定义为train_loader和test_loader
 """
 
 import nltk
@@ -27,7 +27,7 @@ import nltk
 
 # nltk.download('punkt')
 
-def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
+def data_preprocess(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
     """
     :param data_file: 数据集根目录(输入数据：12694张图片，训练集和测试集的json文件(10155, 2538)，json中包含{图片名：描述})
     :param min_word_freq: 构建词汇表时，词汇至少出现的次数，TODO 低于这个词频的词汇处理为unk?
@@ -163,7 +163,7 @@ class CustomDataset(Dataset):
         return img, caption, caplen
 
 
-def dataloader(data_dir, batch_size, workers=4):
+def get_dataloader(data_dir, batch_size, workers=4):
     """
     :param data_dir: 数据集根目录
     :param batch_size: 批处理量
@@ -199,11 +199,21 @@ def dataloader(data_dir, batch_size, workers=4):
     return train_loader, test_loader
 
 
+def gen_text_mask(text, pad, device):
+    # 获取数据mask
+    # 输入N,seq_length
+    # 输出text_padding_mask: N,seq_length text_mask:N*numhead,seq_length,seq_length
+    # text_padding_mask
+    text_padding_mask = (text == pad).to(device)
+    text_mask = Transformer.generate_square_subsequent_mask(text.size(1)).to(device)
+    return text_padding_mask, text_mask
+
+
 if __name__ == '__main__':
     # 在项目根目录运行
     # data_process()
 
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
+    train_loader, test_loader = get_dataloader('data/deepfashion-mini', 64, workers=0)
 
     # 测试
     tqdm_param = {
@@ -211,18 +221,18 @@ if __name__ == '__main__':
         'mininterval': 0.5,
         # 'miniters': 3,
         # 'unit':'iter',
-        'dynamic_ncols':True,
+        'dynamic_ncols': True,
         # 'desc':'Training',
         # 'postfix':'final'
     }
-    with tqdm(enumerate(train_loader), **tqdm_param,desc='Training') as t:
+    with tqdm(enumerate(train_loader), **tqdm_param, desc='Training') as t:
         for i, (imgs, caps, caplens) in t:
             pf = {
                 'i': i,
                 'loss': 0.12,
                 'acc': 0.33
             }
-            print(imgs.shape,caps.shape,caplens.shape)
+            print(imgs.shape, caps.shape, caplens.shape)
             t.set_postfix(pf)
     # ------------------------------------------------------------------
     # # 图片处理测试

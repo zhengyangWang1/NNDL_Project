@@ -134,8 +134,10 @@ class CNNTransformerModel(nn.Module):
                                           # tracker=gpu_tracker,
                                           )
 
-    def forward(self, image, text):
+    def forward(self, image, text, text_key_padding_mask=None, text_mask=None):
         """
+        :param text_mask:
+        :param text_key_padding_mask:
         :param image: B*3*224*224 torch浮点张量
         :param text: B*seq_length torch整型张量
         :return:
@@ -144,7 +146,7 @@ class CNNTransformerModel(nn.Module):
         img_encoded = self.encoder(image)
         # gpu_tracker.track()
         # B*512*embed_size,(B*seq_length->B*seq_length*embed_size) -> B*seq_length*vocab_size 词的onehot向量
-        return self.decoder(img_encoded, text)
+        return self.decoder(img_encoded, text, text_key_padding_mask=text_key_padding_mask, text_mask=text_mask)
 
     def greedy_search(self, images, max_len, vocab):
         # 贪婪搜索

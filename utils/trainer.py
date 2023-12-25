@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 
-from utils.data_loader import dataloader
+from utils.data_loader import gen_text_mask
 from model import CNNRNNStruct
 from model import ResNetEncoder, GRUDecoder
 from model.loss_function import PackedCrossEntropyLoss, TokenCrossEntropyLoss
@@ -20,6 +20,10 @@ def train(train_dataloader, test_dataloader, config: Config, ):
     # 设定保存路径变量
     time_str = time.strftime('%m-%d_%H-%M', time.localtime())
     save_dir = os.path.join('checkpoints', time_str + config.use_model_type)
+    if config.model_checkpoint_path is None:
+        config.model_checkpoint_path = save_dir
+    else:
+        pass  # TODO 低优先级：可以做一个读模型继续训练
     # 设定运行设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
@@ -30,8 +34,8 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                         format="%(asctime)s : %(levelname)s : %(message)s",
                         datefmt="%Y-%m-%d %H:%M:%S", level=logging.DEBUG)
     logging.info('----------开始训练----------')
-    # TODO 加载词典 用于输入pad
-
+    # 加载词典
+    vocab, _ = config.read_vocab()
     ##############
     # 模型加载或创建
     ##############
@@ -44,7 +48,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                                     num_decoder_layer=config.CNN_Transformer.num_decoder,
                                     dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
         logging.info('模型创建完成')
-        criterion = TokenCrossEntropyLoss(padding_index=0).to(device)
+        criterion = TokenCrossEntropyLoss(padding_index=vocab['<pad>']).to(device)
     elif config.use_model_type == 'CNN_GRU':
         if checkpoint is None:  # 模型没有断点
             encoder = ResNetEncoder()
@@ -92,7 +96,8 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                 if config.use_model_type == 'CNN_Transformer':
                     capsin = caps[:, :-1]  # N,S-1 相当于长度减1
                     capsout = caps[:, 1:]  # N,S-1 相当于去掉start标志
-                    logits = model(imgs, capsin) # logits N,S-1,vocab_size
+                    caps_padding_mask, caps_mask = gen_text_mask(capsin, vocab['<pad>'], device)
+                    logits = model(imgs, capsin, caps_padding_mask, caps_mask)  # logits N,S-1,vocab_size
                     # capsout = torch.eye(config.vocab_size, device=device)[capsout]  # 在caps所在设备上生成one-hot向量
                     loss = criterion(logits, capsout)
                 elif config.use_model_type == 'CNN_GRU':
@@ -132,8 +137,6 @@ def train(train_dataloader, test_dataloader, config: Config, ):
         }
         torch.save(checkpoint, os.path.join(save_dir, f'model_checkpoint{epoch}.pth'))
         logging.info('模型保存完成')
-
-    # TODO 保存词典
 
     # 保存模型结构
     with open(os.path.join(save_dir, 'model_structure.txt'), 'w') as f:  # 保存模型层级结构
@@ -188,6 +191,8 @@ def evaluate(test_dataloader, config, model=None, model_path=None):
         pass
     model.to(device)
     logging.info('----------评估模型加载完成----------')
+    # 记载词典
+    vocab, _ = config.read_vocab()
     # 加载损失函数
     # criterion = PackedCrossEntropyLoss().to(device)
     model.eval()
@@ -208,7 +213,8 @@ def evaluate(test_dataloader, config, model=None, model_path=None):
                 if config.use_model_type == 'CNN_Transformer':
                     capsin = caps[:, :-1]  # N,S-1 相当于长度减1
                     capsout = caps[:, 1:]  # N,S-1 相当于去掉start标志
-                    logits = model(imgs, capsin)  # logits N,S-1,vocab_size
+                    caps_padding_mask, caps_mask = gen_text_mask(capsin, vocab['<pad>'], device)
+                    logits = model(imgs, capsin, caps_padding_mask, caps_mask)  # logits N,S-1,vocab_size
                     loss = criterion(logits, capsout)
                 elif config.use_model_type == 'CNN_GRU':
                     predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs, caps, caplens)
@@ -218,6 +224,7 @@ def evaluate(test_dataloader, config, model=None, model_path=None):
                 running_loss += loss.item()  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
 
         average_loss = running_loss / num_samples
+        # TODO 评估各种metrics指标
         log_string = f'Eval, Loss: {average_loss:.4f}, Time Cost: {time.time() - batch_start:.2f}s'
         print(log_string)
         logging.info(log_string)
