@@ -154,23 +154,21 @@ class CNNTransformerModel(nn.Module):
             image_code = image_code.unsqueeze(0).repeat(beam_k, 1, 1)  # (5, 512, 64)
             # 生成k个候选句子，初始时，仅包含开始符号<start>
             cur_sents = torch.full((beam_k, 1), vocab['<start>'], dtype=torch.long).to(device)
-            cur_sent_embed = self.decoder.embedding(cur_sents)[:, 0, :]  # (k, embed_size)
-            sent_lens = torch.LongTensor([1] * beam_k).to(device)
 
             # 存储已生成完整的句子（以句子结束符<end>结尾的句子）
             end_sents = []
             # 存储已生成完整的句子的概率
             end_probs = []
             # 存储未完整生成的句子的概率
-            probs = torch.zeros(beam_k, 1).to(device)
+            probs = torch.zeros(beam_k, 1).to(device)  # (5, 1)
             k = beam_k
             while True:
-                preds = self.decoder(image_code[:k])[:, 0, :]  # (k, vocab_size), 第一个词的预测结果
+                preds = self.decoder(image_code[:k], cur_sents)[:, 0, :]  # TODO:fix # (k, vocab_size), 第一个词的预测结果
                 # -> (k, vocab_size)
                 preds = nn.functional.log_softmax(preds, dim=1)
                 # 对每个候选句子采样概率值最大的前k个单词生成k个新的候选句子，并计算概率
                 # -> (k, vocab_size)
-                probs = probs.repeat(1, preds.size(1)) + preds
+                probs = probs.repeat(1, preds.size(1)) + preds  # (5, vocab_size) probs是preds的累加
                 if cur_sents.size(1) == 1:
                     # 第一步时，所有句子都只包含开始标识符，因此，仅利用其中一个句子计算topk
                     values, indices = probs[0].topk(k, 0, True, True)
@@ -183,12 +181,12 @@ class CNNTransformerModel(nn.Module):
                 sent_indices = torch.div(indices, vocab_size, rounding_mode='trunc')
                 word_indices = indices % vocab_size
                 # 将词拼接在前一轮的句子后，获得此轮的句子
-                cur_sents = torch.cat([cur_sents[sent_indices], word_indices.unsqueeze(1)], dim=1)
+                cur_sents = torch.cat([cur_sents[sent_indices], word_indices.unsqueeze(1)], dim=1)  # (5, x)
                 # 查找此轮生成句子结束符<end>的句子
-                end_indices = [idx for idx, word in enumerate(word_indices) if word == vocab['<end>']]
+                end_indices = [idx for idx, word in enumerate(word_indices) if word == vocab['<end>']]  # 储存结束句子的索引
                 if len(end_indices) > 0:
-                    end_probs.extend(values[end_indices])
-                    end_sents.extend(cur_sents[end_indices].tolist())
+                    end_probs.extend(values[end_indices])  # 结束句子的概率
+                    end_sents.extend(cur_sents[end_indices].tolist())  # 结束句子
                     # 如果所有的句子都包含结束符，则停止生成
                     k -= len(end_indices)
                     if k == 0:
@@ -197,14 +195,9 @@ class CNNTransformerModel(nn.Module):
                 cur_indices = [idx for idx, word in enumerate(word_indices)
                                if word != vocab['<end>']]
                 if len(cur_indices) > 0:
-                    cur_sent_indices = sent_indices[cur_indices]
-                    cur_word_indices = word_indices[cur_indices]
-                    # 仅保留还需要继续生成的句子、句子概率、隐状态、词嵌入
+                    # 仅保留还需要继续生成的句子、句子概率
                     cur_sents = cur_sents[cur_indices]
                     probs = values[cur_indices].view(-1, 1)
-                    hidden_state = hidden_state[:, cur_sent_indices, :]
-                    cur_sent_embed = self.decoder.cap_embed(
-                        cur_word_indices.view(-1, 1))[:, 0, :]
                 # 句子太长，停止生成
                 if cur_sents.size(1) >= max_len:
                     break

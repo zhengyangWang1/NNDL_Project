@@ -1,5 +1,5 @@
 {
-    "use_model_type": "CNN_GRU",
+    "use_model_type": "CNN_Transformer",
     "vocab_size": 109,
     "encoder_lr": 0.0001,
     "decoder_lr": 0.0005,

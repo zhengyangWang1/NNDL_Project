@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # 数据加载
     train_loader, test_loader = dataloader('data/deepfashion-mini', config.batch_size, workers=0)
     # 模型训练
-    train(train_loader, config)
+    # train(train_loader, config)
 
     # 模型评估
     vocab_path = 'data/deepfashion-mini/vocab.json'
