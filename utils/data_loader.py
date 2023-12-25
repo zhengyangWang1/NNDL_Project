@@ -222,6 +222,7 @@ if __name__ == '__main__':
                 'loss': 0.12,
                 'acc': 0.33
             }
+            print(imgs.shape,caps.shape,caplens.shape)
             t.set_postfix(pf)
     # ------------------------------------------------------------------
     # # 图片处理测试

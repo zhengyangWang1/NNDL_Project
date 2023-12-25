@@ -9,7 +9,7 @@ class PackedCrossEntropyLoss(nn.Module):
         self.loss_fn = nn.CrossEntropyLoss()
 
     def forward(self, src, targets, lengths):
-        """
+        """ 其实也是在词的维度上求得的损失
         :param src: 预测结果
         :param targets: 文本描述
         :param lengths: 文本描述长度列表
@@ -18,6 +18,22 @@ class PackedCrossEntropyLoss(nn.Module):
         src = pack_padded_sequence(src, lengths, batch_first=True, enforce_sorted=False)[0]
         targets = pack_padded_sequence(targets, lengths, batch_first=True, enforce_sorted=False)[0]
         return self.loss_fn(src, targets)
+
+
+class TokenCrossEntropyLoss(nn.Module):
+    def __init__(self, padding_index):
+        super(TokenCrossEntropyLoss, self).__init__()
+        self.loss_fn = nn.CrossEntropyLoss(ignore_index=padding_index)
+
+    def forward(self, src, tgt):
+        """ 其实也是在词的维度上求得的损失
+        :param src: 预测结果 形状 N,S,vocab
+        :param tgt: 文本描述 形状 N,S
+        :return:
+        """
+        # src = pack_padded_sequence(src, lengths, batch_first=True, enforce_sorted=False)[0]
+        # targets = pack_padded_sequence(targets, lengths, batch_first=True, enforce_sorted=False)[0]
+        return self.loss_fn(src.reshape(-1, src.shape[-1]), tgt.reshape(-1))
 
 
 # FIXME follow https://github.com/ruotianluo/self-critical.pytorch/blob/master/captioning/modules/losses.py

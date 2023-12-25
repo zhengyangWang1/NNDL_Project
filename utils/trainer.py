@@ -22,6 +22,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
     save_dir = os.path.join('checkpoints', time_str + config.use_model_type)
     # 设定运行设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(device)
     # 创建保存路径
     os.makedirs(save_dir, exist_ok=True)
     # 日志记录
@@ -29,6 +30,8 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                         format="%(asctime)s : %(levelname)s : %(message)s",
                         datefmt="%Y-%m-%d %H:%M:%S", level=logging.DEBUG)
     logging.info('----------开始训练----------')
+    # TODO 加载词典 用于输入pad
+
     ##############
     # 模型加载或创建
     ##############
@@ -58,7 +61,6 @@ def train(train_dataloader, test_dataloader, config: Config, ):
             logging.info('模型加载完成')
     else:
         raise ValueError("model_type not found")
-
     # 损失函数和优化器
     criterion = PackedCrossEntropyLoss().to(device)
     optimizer = torch.optim.AdamW([{"params": filter(lambda p: p.requires_grad, model.encoder.parameters()),

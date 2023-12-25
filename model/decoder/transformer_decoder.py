@@ -30,6 +30,7 @@ class TransformerDecoder(nn.Module):
 
         # FIXME  编码onehot向量 对应输出(batchsize,seq_length,vocabsize) ？
         self.fc = nn.Linear(embed_size, vocab_size)
+        self.device_mask_used=torch.device('cuda')# FIXME 非常不好的写法
         # self.tracker=tracker
         # self.softmax=nn.Softmax(dim=2)
 
@@ -42,7 +43,9 @@ class TransformerDecoder(nn.Module):
         # tgt_mask=None, memory_mask=None
         # if self.tracker is not None:
         #     self.tracker.track()
-        text_key_padding_mask, text_mask = gen_text_mask(text, self.num_head, )  # TODO 如果从外部传入mask的话可以将这个注释掉
+        text_key_padding_mask, text_mask = self.gen_text_mask(text)
+        # TODO 如果从外部传入mask的话可以将这个注释掉
+        text_key_padding_mask, text_mask = text_key_padding_mask.to(self.device_mask_used), text_mask.to(self.device_mask_used)
         text_embedding = self.embedding(text)
         # if self.tracker is not None:
         #     self.tracker.track()
@@ -60,6 +63,14 @@ class TransformerDecoder(nn.Module):
         # if self.tracker is not None:
         #     self.tracker.track()
         return output
+
+    def gen_text_mask(self, text, pad=0):
+        # 输入N,seq_length TODO 重构到dataloader也许更好，或者util
+        # 输出text_padding_mask: N,seq_length text_mask:N*numhead,seq_length,seq_length
+        # text_padding_mask
+        text_padding_mask = (text == pad)
+        text_mask = nn.Transformer.generate_square_subsequent_mask(text.size(1))
+        return text_padding_mask, text_mask
 
 
 class PositionalEncoding(nn.Module):
@@ -87,23 +98,12 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 
-def gen_text_mask(text: torch.Tensor, num_heads, pad=0):
-    # 输入N,seq_length TODO 重构到dataloader也许更好，或者util
-    # 输出text_padding_mask: N,seq_length text_mask:N*numhead,seq_length,seq_length
-    # text_padding_mask
-    text_padding_mask = (text == pad)
-    # text_padding_mask = None
-    text_mask=nn.Transformer.generate_square_subsequent_mask(text.size(1))
-    # text_mask = None
-    return text_padding_mask, text_mask
-
-
 if __name__ == '__main__':
     # 测试mask模块
-    a= torch.tensor([[1,2,3,0],[4,0,0,0]])
-    b,c=gen_text_mask(a,8)
-    print(b,b.shape)
-    print(c,c.shape)
+    a = torch.tensor([[1, 2, 3, 0], [4, 0, 0, 0]])
+    b, c = gen_text_mask(a, 8)
+    print(b, b.shape)
+    print(c, c.shape)
 
     # 测试自己的模型
 
