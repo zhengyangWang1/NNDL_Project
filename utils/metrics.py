@@ -9,7 +9,7 @@ def filter_useless_words(sent, filterd_words):
     # 去除句子中不参与BLEU值计算的符号
     return [w for w in sent if w not in filterd_words]
 
-
+# https://www.nltk.org/api/nltk.translate.bleu_score.html
 def evaluate(data_loader, model, config):
     model.eval()
     # 存储候选文本

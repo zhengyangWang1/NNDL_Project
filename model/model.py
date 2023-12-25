@@ -157,6 +157,7 @@ class CNNTransformerModel(nn.Module):
         device = images.device
         # 创建等batchsize的输入文本，以start开始
         text = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
+        # TODO 加载数据使用
         # TODO 未完成
 
     def beam_search(self, images, beam_k, max_len, vocab_size, vocab):
