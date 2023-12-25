@@ -8,7 +8,7 @@ import json
 
 if __name__ == '__main__':
     config = Config()
-    config.read_config('config.json')  # 读取参数，打印参数
+    config.read_config('checkpoints/12-25_00-45CNN_Transformer/config.json')  # 读取参数，打印参数
     # 数据加载
     train_loader, test_loader = dataloader('data/deepfashion-mini', config.batch_size, workers=0)
     # 模型训练

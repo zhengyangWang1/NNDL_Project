@@ -20,6 +20,8 @@ class Config:
         self.decoder_lr = 0.0005
         self.num_epoch = 5
         self.batch_size = 64
+
+        # 束搜索参数
         self.beam_k = 5
         self.max_len = 25
 

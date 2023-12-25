@@ -13,11 +13,11 @@ class TransformerDecoder(nn.Module):
                  num_head,
                  num_decoder_layer=6,
                  dim_ff=512,
-                 tracker=None,):
+                 tracker=None, ):
         super(TransformerDecoder, self).__init__()
+        self.num_head = num_head
         # word embedding 词汇embedding
         # 假设输入为 batchsize, seq_length（句子长度），输出为(batchsize,seq_length,embed_size)
-        # TODO position_embedding
         self.embedding = nn.Embedding(vocab_size, embed_size)
         self.positional_embedding = PositionalEncoding(embed_size)
         # transformer解码器 输入输出都为(batchsize,seq_length,embed_size)
@@ -26,14 +26,14 @@ class TransformerDecoder(nn.Module):
                                                         dim_feedforward=dim_ff,
                                                         batch_first=True)
         self.transformer_decoder = nn.TransformerDecoder(self.decoder_layer,
-                                                         num_layers=num_decoder_layer)# TODO 是否需要norm
+                                                         num_layers=num_decoder_layer)  # TODO 是否需要norm
 
         # FIXME  编码onehot向量 对应输出(batchsize,seq_length,vocabsize) ？
         self.fc = nn.Linear(embed_size, vocab_size)
         # self.tracker=tracker
         # self.softmax=nn.Softmax(dim=2)
 
-    def forward(self, img_encoded, text, imgcode_mask=None, text_mask=None, text_key_padding_mask=None):
+    def forward(self, img_encoded, text, text_key_padding_mask=None, text_mask=None, ):
         """
         :param img_encoded: (batchsize,2048,512)
         :param text: (batchsize,seq_length) 可变化
@@ -42,6 +42,7 @@ class TransformerDecoder(nn.Module):
         # tgt_mask=None, memory_mask=None
         # if self.tracker is not None:
         #     self.tracker.track()
+        text_key_padding_mask, text_mask = gen_text_mask(text, self.num_head, )  # TODO 如果从外部传入mask的话可以将这个注释掉
         text_embedding = self.embedding(text)
         # if self.tracker is not None:
         #     self.tracker.track()
@@ -50,8 +51,8 @@ class TransformerDecoder(nn.Module):
         #     self.tracker.track()
         decoded = self.transformer_decoder(text_embedding,
                                            img_encoded,
-                                           tgt_mask=text_mask, # TODO 只关注之前的信息，应该有函数生成
-                                           tgt_key_padding_mask=text_key_padding_mask) # TODO 不关注句子中的padding填充信息矩阵
+                                           tgt_mask=text_mask,
+                                           tgt_key_padding_mask=text_key_padding_mask)  # TODO 不关注句子中的padding填充信息矩阵
         # if self.tracker is not None:
         #     self.tracker.track()
         output = self.fc(decoded)
@@ -71,13 +72,13 @@ class PositionalEncoding(nn.Module):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
         # 对数空间内计算一次位置编码
-        pe = torch.zeros(max_len, d_model) # shape (max_len, d_model)
-        position = torch.arange(0, max_len).unsqueeze(1).float() # shape(max_len,1)  从0-max_len整数变成float
+        pe = torch.zeros(max_len, d_model)  # shape (max_len, d_model)
+        position = torch.arange(0, max_len).unsqueeze(1).float()  # shape(max_len,1)  从0-max_len整数变成float
         div_term = torch.exp(torch.arange(0, d_model, 2).float() *
-                             -(math.log(10000.0) / d_model)) #
+                             -(math.log(10000.0) / d_model))  #
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0) # (1,max_len, d_model)
+        pe = pe.unsqueeze(0)  # (1,max_len, d_model)
         self.register_buffer('pe', pe)
 
     def forward(self, x):
@@ -85,56 +86,28 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1)]
         return self.dropout(x)
 
-class Generator(nn.Module):
-    "Define standard linear + softmax generation step."
-    def __init__(self, d_model, vocab):
-        super(Generator, self).__init__()
-        self.proj = nn.Linear(d_model, vocab)
 
-    def forward(self, x):
-        return F.log_softmax(self.proj(x), dim=-1)
-
+def gen_text_mask(text: torch.Tensor, num_heads, pad=0):
+    # 输入N,seq_length TODO 重构到dataloader也许更好，或者util
+    # 输出text_padding_mask: N,seq_length text_mask:N*numhead,seq_length,seq_length
+    # text_padding_mask
+    text_padding_mask = (text == pad)
+    # text_padding_mask = None
+    text_mask=nn.Transformer.generate_square_subsequent_mask(text.size(1))
+    # text_mask = None
+    return text_padding_mask, text_mask
 
 
 if __name__ == '__main__':
-    # 测试pytorch的transformer层实现 ，输出模型结构和结果
-    # decoder_layer = nn.TransformerDecoderLayer(d_model=512, nhead=8)
-    # transformer_decoder = nn.TransformerDecoder(decoder_layer, num_layers=6)
-    # memory = torch.rand(10, 32, 512)
-    # tgt = torch.rand(20, 32, 512)
-    # out = transformer_decoder(tgt, memory)
-    # torchinfo.summary(decoder_layer,input_data=(tgt, memory))
-    # torchinfo.summary(transformer_decoder, input_data=(tgt, memory))
+    # 测试mask模块
+    a= torch.tensor([[1,2,3,0],[4,0,0,0]])
+    b,c=gen_text_mask(a,8)
+    print(b,b.shape)
+    print(c,c.shape)
 
     # 测试自己的模型
 
-    model = TransformerDecoder(vocab_size=128, embed_size=512, num_head=8)
-    img_encoded = torch.rand(8, 1024, 512)
-    text = torch.ones(8, 32).to(torch.int)
-    torchinfo.summary(model, input_data=(img_encoded, text))
-
-'''
-===============================================================================================
-TransformerDecoder                            [8, 32, 128]              4,204,032
-├─Embedding: 1-1                              [8, 32, 512]              65,536
-├─TransformerDecoder: 1-2                     [8, 32, 512]              --
-│    └─ModuleList: 2-1                        --                        --
-│    │    └─TransformerDecoderLayer: 3-1      [8, 32, 512]              4,204,032
-│    │    └─TransformerDecoderLayer: 3-2      [8, 32, 512]              4,204,032
-│    │    └─TransformerDecoderLayer: 3-3      [8, 32, 512]              4,204,032
-│    │    └─TransformerDecoderLayer: 3-4      [8, 32, 512]              4,204,032
-│    │    └─TransformerDecoderLayer: 3-5      [8, 32, 512]              4,204,032
-│    │    └─TransformerDecoderLayer: 3-6      [8, 32, 512]              4,204,032
-├─Linear: 1-3                                 [8, 32, 128]              65,664
-===============================================================================================
-Total params: 29,559,424
-Trainable params: 29,559,424
-Non-trainable params: 0
-Total mult-adds (M): 101.98
-===============================================================================================
-Input size (MB): 16.78
-Forward/backward pass size (MB): 51.64
-Params size (MB): 50.99
-Estimated Total Size (MB): 119.41
-===============================================================================================
-'''
+    # model = TransformerDecoder(vocab_size=128, embed_size=512, num_head=8)
+    # img_encoded = torch.rand(8, 1024, 512)
+    # text = torch.ones(8, 32).to(torch.int)
+    # torchinfo.summary(model, input_data=(img_encoded, text))

@@ -87,9 +87,11 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                 # forward 返回B*seq_length*vocab_size
                 # forward_start = time.time()
                 if config.use_model_type == 'CNN_Transformer':
-                    result = model(imgs, caps)
-                    caps = torch.eye(config.vocab_size, device=device)[caps]  # 在caps所在设备上生成one-hot向量
-                    loss = criterion(result, caps, caplens)
+                    capsin = caps[:, :-1] # N,seqlength-1 相当于长度减1
+                    capsout = caps[:, 1:] # N,seqlength-1 相当于去掉start
+                    logits = model(imgs, capsin)
+                    capsout = torch.eye(config.vocab_size, device=device)[capsout]  # 在caps所在设备上生成one-hot向量
+                    loss = criterion(logits, capsout, caplens)
                 elif config.use_model_type == 'CNN_GRU':
                     predictions, sorted_captions, lengths, sorted_cap_indices = model(imgs, caps, caplens)
                     loss = criterion(predictions, sorted_captions[:, 1:], lengths)
@@ -130,6 +132,8 @@ def train(train_dataloader, test_dataloader, config: Config, ):
         torch.save(checkpoint, os.path.join(save_dir, f'model_checkpoint{epoch}.pth'))
         logging.info('模型保存完成')
 
+    # TODO 保存词典
+
     # 保存模型结构
     with open(os.path.join(save_dir, 'model_structure.txt'), 'w') as f:  # 保存模型层级结构
         f.write(str(model))
@@ -141,7 +145,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
 
 # 测试beam search用
 def evaluation(test_loader, config: Config, vocab):
-    checkpoint = torch.load('checkpoints/CNNTransformer/model.pth')
+    checkpoint = torch.load('checkpoints/12-25_00-45CNN_Transformer/model_checkpoint3.pth')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # encoder = ResNetEncoder()
     # decoder = GRUDecoder(img_dim=config.CNN_GRU.img_dim,
@@ -156,13 +160,14 @@ def evaluation(test_loader, config: Config, vocab):
                                 num_encoder_layer=config.CNN_Transformer.num_decoder,
                                 num_decoder_layer=config.CNN_Transformer.num_decoder,
                                 dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
-    model.load_state_dict(checkpoint)
+    model.load_state_dict(checkpoint['model'])
     model.eval()
-    for i, (imgs, caps, caplens) in enumerate(test_loader):
-        with torch.no_grad():
+    with torch.no_grad():
+        for i, (imgs, caps, caplens) in enumerate(test_loader):
             # 通过束搜索，生成候选文本
             texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, config.vocab_size, vocab)
             print(texts)
+            input("按下回车键继续...")
 
 
 def evaluate(test_dataloader, config, model=None, model_path=None):

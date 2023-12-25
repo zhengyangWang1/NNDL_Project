@@ -7,6 +7,7 @@ from .decoder import TransformerDecoder, GRUDecoder
 from utils.gpu_mem_track import MemTracker
 import numpy as np
 
+
 # gpu_tracker = MemTracker()
 
 
@@ -49,7 +50,7 @@ class CNNRNNStruct(nn.Module):
             k = beam_k
             while True:
                 preds, hidden_state = self.decoder.forward_step(image_code[:k], cur_sent_embed,
-                                                                   hidden_state.contiguous())
+                                                                hidden_state.contiguous())
                 # -> (k, vocab_size)
                 preds = nn.functional.log_softmax(preds, dim=1)
                 # 对每个候选句子采样概率值最大的前k个单词生成k个新的候选句子，并计算概率
@@ -101,6 +102,7 @@ class CNNRNNStruct(nn.Module):
             texts.append(gen_sent)
         return texts
 
+
 class CNNTransformerModel(nn.Module):
     def __init__(self,
                  vocab_size,
@@ -138,57 +140,84 @@ class CNNTransformerModel(nn.Module):
         :param text: B*seq_length torch整型张量
         :return:
         """
-        # B*3*224*224 -> B*2048*embed_size
+        # B*3*224*224 -> B*512*embed_size
         img_encoded = self.encoder(image)
         # gpu_tracker.track()
-        # B*2048*embed_size,(B*seq_length->B*seq_length*embed_size) -> B*seq_length*vocab_size 词的onehot向量
+        # B*512*embed_size,(B*seq_length->B*seq_length*embed_size) -> B*seq_length*vocab_size 词的onehot向量
         return self.decoder(img_encoded, text)
+
+    def greedy_search(self, images, max_len, vocab):
+        # 贪婪搜索
+        vocab_size = len(vocab)
+        # 获取图像编码
+        image_code = self.encoder(images)  # (batchsize, 512, 64)
+        batch_size = images.size(0)
+        device = images.device
+        # 创建等batchsize的输入文本，以start开始
+        text = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
+        # TODO 未完成
 
     def beam_search(self, images, beam_k, max_len, vocab_size, vocab):
         image_codes = self.encoder(images)  # (batchsize, 512, 64)
         texts = []
         device = images.device
         # 对每个图像样本执行束搜索
-        for image_code in image_codes:
-            # 将图像表示复制k份
-            image_code = image_code.unsqueeze(0).repeat(beam_k, 1, 1)  # (5, 512, 64)
+        for image_code in image_codes:  # (512, 64)
+            # 将图像表示复制k份 对应k束
+            image_code = image_code.unsqueeze(0).repeat(beam_k, 1, 1)  # (beamk, image_code_dim, embed_size)(5,512,64)
             # 生成k个候选句子，初始时，仅包含开始符号<start>
-            cur_sents = torch.full((beam_k, 1), vocab['<start>'], dtype=torch.long).to(device)
-
+            cur_sents = torch.full((beam_k, 1), vocab['<start>'], dtype=torch.long).to(
+                device)  # (beamk, seq_length, embed_size)
             # 存储已生成完整的句子（以句子结束符<end>结尾的句子）
             end_sents = []
             # 存储已生成完整的句子的概率
             end_probs = []
             # 存储未完整生成的句子的概率
             probs = torch.zeros(beam_k, 1).to(device)  # (5, 1)
-            k = beam_k
+            k = beam_k  # k在找到一个句子之后减1
             while True:
-                preds = self.decoder(image_code[:k], cur_sents)[:, 0, :]  # TODO:fix # (k, vocab_size), 第一个词的预测结果
-                # -> (k, vocab_size)
-                preds = nn.functional.log_softmax(preds, dim=1)
+                # 第一次输入imagecode  (k,512,embedsize) text (k,seq_length) -> (k,seq_length, vocab_size)
+                preds = self.decoder(image_code[:k], cur_sents)[:, 0, :]  # TODO:fix 应该是-1 获取序列最后一个结果
+                #
+                # print(preds.shape)
+                preds = nn.functional.log_softmax(preds, dim=1)  # TODO 是否应该改成softmax
                 # 对每个候选句子采样概率值最大的前k个单词生成k个新的候选句子，并计算概率
                 # -> (k, vocab_size)
+                # print('=====')
+                # print(probs.shape,preds.shape)
                 probs = probs.repeat(1, preds.size(1)) + preds  # (5, vocab_size) probs是preds的累加
                 if cur_sents.size(1) == 1:
                     # 第一步时，所有句子都只包含开始标识符，因此，仅利用其中一个句子计算topk
-                    values, indices = probs[0].topk(k, 0, True, True)
+                    # 返回值和索引 两个张量
+                    # print('-----')
+                    # print(probs.shape,probs[0].shape,)
+                    values, indices = probs[0].topk(k, dim=0, largest=True, sorted=True)
+                    # print(values.shape, indices.shape)
                 else:
                     # probs: (k, vocab_size) 是二维张量
                     # topk函数直接应用于二维张量会按照指定维度取最大值，这里需要在全局取最大值
-                    # 因此，将probs转换为一维张量，再使用topk函数获取最大的k个值
-                    values, indices = probs.view(-1).topk(k, 0, True, True)
+                    # 因此，将probs转换为一维张量（reshape），再使用topk函数获取最大的k个值
+                    values, indices = probs.view(-1).topk(k, dim=0, largest=True, sorted=True)
+                    # print(values.shape,indices.shape)
                 # 计算最大的k个值对应的句子索引和词索引
-                sent_indices = torch.div(indices, vocab_size, rounding_mode='trunc')
-                word_indices = indices % vocab_size
+                # 因为是正常展开，使用整除维度就可以获得对应的topk词典索引
+                # print(indices.shape,vocab_size)
+                sent_indices = torch.div(indices, vocab_size, rounding_mode='trunc')  # 整除，得到对应的句子
+                word_indices = indices % vocab_size  # 取模，得到对应的word索引 5
                 # 将词拼接在前一轮的句子后，获得此轮的句子
+                # print(f'sent_indices{sent_indices.shape}')
+                # print(cur_sents[sent_indices].shape, word_indices.unsqueeze(1).shape) # 5,109,1  5,1,109
                 cur_sents = torch.cat([cur_sents[sent_indices], word_indices.unsqueeze(1)], dim=1)  # (5, x)
-                # 查找此轮生成句子结束符<end>的句子
+                # 查找此轮生成句子结束符<end>的句子的 索引
                 end_indices = [idx for idx, word in enumerate(word_indices) if word == vocab['<end>']]  # 储存结束句子的索引
                 if len(end_indices) > 0:
-                    end_probs.extend(values[end_indices])  # 结束句子的概率
+                    # 结束句子的概率添加到结束句子概率列表中，values[end_indices]获得了end的概率 一个列表
+                    end_probs.extend(values[end_indices])  # FIXME 为什么不需要tolist 一维张量可以直接转换为单个张量
+                    # 存储已经结束的句子
                     end_sents.extend(cur_sents[end_indices].tolist())  # 结束句子
-                    # 如果所有的句子都包含结束符，则停止生成
+                    # 已经生成句子 搜索k减少
                     k -= len(end_indices)
+                    # 如果所有的句子都包含结束符，则停止生成
                     if k == 0:
                         break
                 # 查找还需要继续生成词的句子
@@ -201,6 +230,7 @@ class CNNTransformerModel(nn.Module):
                 # 句子太长，停止生成
                 if cur_sents.size(1) >= max_len:
                     break
+
             if len(end_sents) == 0:
                 # 如果没有包含结束符的句子，则选取第一个句子作为生成句子
                 gen_sent = cur_sents[0].tolist()
@@ -210,11 +240,11 @@ class CNNTransformerModel(nn.Module):
             texts.append(gen_sent)
         return texts
 
+
 class Generator(nn.Module):
     def __init__(self):
         super().__init__()
         # TODO 文本生成器类，实现 贪婪搜索 和 beam搜索
-
 
 
 if __name__ == '__main__':
