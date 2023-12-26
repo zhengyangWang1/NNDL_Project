@@ -2,15 +2,18 @@ import os
 import json
 import torch
 import random
+import signal
 import numpy as np
+from tqdm import tqdm
 import matplotlib.pyplot as plt
 from collections import Counter
-from nltk.tokenize import sent_tokenize, word_tokenize
 from torch.utils.data import Dataset
+from torch.nn import Transformer
 from PIL import Image
 from torchvision import transforms
-import string
-from tqdm import tqdm
+from nltk.tokenize import sent_tokenize, word_tokenize
+
+# from nltk.corpus import brown,
 
 """
 # 读取数据，预处理数据
@@ -18,8 +21,8 @@ from tqdm import tqdm
 # 描述需要预处理，文本描述不是单一句子，需要转化为单一句子，处理成向量
 
 主要函数：
-data_process: 进行数据预处理
-data_loader: 将预处理的数据定义为train_loader和test_loader
+data_preprocess: 进行数据预处理
+get_data_loader: 将预处理的数据定义为train_loader和test_loader
 """
 
 import nltk
@@ -27,15 +30,24 @@ import nltk
 
 # nltk.download('punkt')
 
-def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
+def data_preprocess(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
     """
     :param data_file: 数据集根目录(输入数据：12694张图片，训练集和测试集的json文件(10155, 2538)，json中包含{图片名：描述})
-    :param min_word_freq: 构建词汇表时，词汇至少出现的次数，TODO 低于这个词频的词汇处理为unk?
-    :param captions_per_image: 每张图片对应的文本描述数 TODO 是否应该自行统计
+    :param min_word_freq: 构建词汇表时，词汇至少出现的次数，
+    :param captions_per_image: 每张图片对应的文本描述数
     :param max_len: 文本包含最大单词数
     :return: none 把处理好的数据存入json文件：train_data.json和test_data.json，同时将词典存为vocab.json
     """
-    # TODO 统计
+    # nltk word_tokenize需要 下载punkt
+    try:
+        print(nltk.data.find('tokenizers/punkt'))
+    except LookupError:
+        print('nltk需要下载punkt，尝试下载')
+        signal.signal(signal.SIGALRM, signal_handler)
+        signal.alarm(60)
+        nltk.download('punkt')
+        signal.signal(signal.SIGALRM, signal.SIG_DFL)
+
     # 读取数据集 数据集格式 字典name.jpg:captions 处理为->
     train_json = os.path.join(data_file, 'train_captions.json')  # 训练集描述路径
     with open(train_json, 'r', encoding='utf-8') as train_file:
@@ -48,7 +60,7 @@ def data_process(data_file='data/deepfashion-mini', min_word_freq=5, captions_pe
     # 将描述转化为列表 dict_values() -> list   py3.7之后的版本中是有顺序的
     train_descriptions = list(train_data.values())
 
-    # 统计词频 TODO 大小写
+    # 统计词频 统一为小写，并且标点符号算作token
     word_counts = Counter()
     punctuation = [',', '.']
     for text in train_descriptions:
@@ -163,7 +175,7 @@ class CustomDataset(Dataset):
         return img, caption, caplen
 
 
-def dataloader(data_dir, batch_size, workers=4):
+def get_dataloader(data_dir, batch_size, workers=4):
     """
     :param data_dir: 数据集根目录
     :param batch_size: 批处理量
@@ -194,35 +206,50 @@ def dataloader(data_dir, batch_size, workers=4):
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
+        test_dataset, batch_size=batch_size, shuffle=False, num_workers=workers)
 
     return train_loader, test_loader
 
 
+def gen_text_mask(text, pad, device):
+    # 获取数据mask
+    # 输入N,seq_length
+    # 输出text_padding_mask: N,seq_length text_mask:N*numhead,seq_length,seq_length
+    # text_padding_mask
+    text_padding_mask = (text == pad).to(device)
+    text_mask = Transformer.generate_square_subsequent_mask(text.size(1)).to(device)
+    return text_padding_mask, text_mask
+
+
+def signal_handler(signum, frame):
+    raise TimeoutError('下载超时，请尝试别的方式下载punkt')
+
+
 if __name__ == '__main__':
+    pass
     # 在项目根目录运行
     # data_process()
 
-    train_loader, test_loader = dataloader('data/deepfashion-mini', 64, workers=0)
 
     # 测试
-    tqdm_param = {
-        'total': len(train_loader),
-        'mininterval': 0.5,
-        # 'miniters': 3,
-        # 'unit':'iter',
-        'dynamic_ncols':True,
-        # 'desc':'Training',
-        # 'postfix':'final'
-    }
-    with tqdm(enumerate(train_loader), **tqdm_param,desc='Training') as t:
-        for i, (imgs, caps, caplens) in t:
-            pf = {
-                'i': i,
-                'loss': 0.12,
-                'acc': 0.33
-            }
-            t.set_postfix(pf)
+    # tqdm_param = {
+    #     'total': len(train_loader),
+    #     'mininterval': 0.5,
+    #     # 'miniters': 3,
+    #     # 'unit':'iter',
+    #     'dynamic_ncols': True,
+    #     # 'desc':'Training',
+    #     # 'postfix':'final'
+    # }
+    # with tqdm(enumerate(train_loader), **tqdm_param, desc='Training') as t:
+    #     for i, (imgs, caps, caplens) in t:
+    #         pf = {
+    #             'i': i,
+    #             'loss': 0.12,
+    #             'acc': 0.33
+    #         }
+    #         print(imgs.shape, caps.shape, caplens.shape)
+    #         t.set_postfix(pf)
     # ------------------------------------------------------------------
     # # 图片处理测试
     # custom_transform = transforms.Compose([
