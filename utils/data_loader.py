@@ -256,6 +256,8 @@ def get_dataloader(data_dir, batch_size, eval_batch_size, workers=4):
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
     test_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=eval_batch_size, shuffle=False, num_workers=workers)
+
+    # 测试拆分数据集
     eval_loader = torch.utils.data.DataLoader(
         eval_dataset, batch_size=eval_batch_size, shuffle=False, num_workers=workers)
 
@@ -279,29 +281,30 @@ def signal_handler(signum, frame):
 if __name__ == '__main__':
     pass
     # 在项目根目录运行
-    data_preprocess()
+    # data_preprocess()
+
 
     # 测试
-    # train_loader, test_loader, eval_loader = get_dataloader("data/deepfashion-mini", 64, 512, 0)
-    # tqdm_param = {
-    #     'total': len(eval_loader),
-    #     'mininterval': 0.5,
-    #     # 'miniters': 3,
-    #     # 'unit':'iter',
-    #     'dynamic_ncols': True,
-    #     # 'desc':'Training',
-    #     # 'postfix':'final'
-    # }
-    # with tqdm(enumerate(eval_loader), **tqdm_param, desc='Training') as t:
-    #     for i, (imgs, caps, caplens) in t:
-    #         pf = {
-    #             'i': i,
-    #             'loss': 0.12,
-    #             'acc': 0.33
-    #         }
-    #         print(imgs.shape, caps.shape, len(caplens))
-    #         input('waiting ')
-    #         t.set_postfix(pf)
+    train_loader, test_loader, eval_loader = get_dataloader("data/deepfashion-mini", 64, 512, 0)
+    tqdm_param = {
+        'total': len(eval_loader),
+        'mininterval': 0.5,
+        # 'miniters': 3,
+        # 'unit':'iter',
+        'dynamic_ncols': True,
+        # 'desc':'Training',
+        # 'postfix':'final'
+    }
+    with tqdm(enumerate(eval_loader), **tqdm_param, desc='Training') as t:
+        for i, (imgs, caps, caplens) in t:
+            pf = {
+                'i': i,
+                'loss': 0.12,
+                'acc': 0.33
+            }
+            print(imgs.shape, caps.shape, len(caplens))
+            input('waiting ')
+            t.set_postfix(pf)
 
     # ------------------------------------------------------------------
     # # 图片处理测试

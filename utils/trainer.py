@@ -176,7 +176,7 @@ def evaluation(test_loader, config: Config, ):
     with torch.no_grad():
         for i, (imgs, caps, caplens) in enumerate(test_loader):
             # 通过束搜索，生成候选文本
-            texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, config.vocab_size, vocab)
+            texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, vocab)
             texts = [[i2t[s] for s in l] for l in texts]
             print(texts)
             input("按下回车键继续...")

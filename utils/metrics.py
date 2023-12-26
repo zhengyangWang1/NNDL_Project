@@ -40,20 +40,24 @@ def evaluate_metrics(eval_loader, model, config):
     # cpi = config.captions_per_image
     device = next(model.parameters()).device
     with torch.no_grad():
+        cnt = 0  # test
         tqdm_param = {
             'total': len(eval_loader),
             'mininterval': 0.5,
             'dynamic_ncols': True,
         }
         with tqdm(enumerate(eval_loader), **tqdm_param, desc='bleu-4') as t:
-            for i, (imgs, caps, caplens) in enumerate(eval_loader):
+            for i, (imgs, caps, caplens) in t:
+                cnt += 1  # test
                 # 通过束搜索，生成候选文本 return 512条list的list
-                texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, config.vocab_size, vocab)
+                texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, vocab)
                 # 候选文本 512条语句
                 hyps.extend([filter_useless_words(text, filterd_words) for text in texts])
                 # 参考文本 caps 是tensor 需要转换成list 512,7,25 转换成list
-                for cap in caps.tolist(): # cap是七条语句 循环512次
+                for cap in caps.tolist():  # cap是七条语句 循环512次
                     refs.append([filter_useless_words(c, filterd_words) for c in cap])
+                # if cnt >= 16:
+                #     break  # test
     # 实际上，每个候选文本对应cpi条参考文本
     # multiple_refs = []
     # for idx in range(len(refs)):
@@ -65,4 +69,5 @@ def evaluate_metrics(eval_loader, model, config):
     bleu4 = corpus_bleu(refs, hyps, weights=(0.25, 0.25, 0.25, 0.25))
     # 其他评估指标实现，meteor,rouge-l,CIDEr-D,SPICE
     model.train()
+    print(f'Metric Score: bleu-4:{bleu4}')
     return bleu4

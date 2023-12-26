@@ -156,27 +156,45 @@ class CNNTransformerModel(nn.Module):
         image_codes = self.encoder(images)  # (batchsize, 512, 64)
         batch_size = images.size(0)
         device = images.device
-        # 创建等batchsize的输入文本，以start开始
-        # text = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
-        # 存储输出的句子
-        sentences_out = []
-        for image_code in image_codes:
-            # 每个句子
-            sentences_in = torch.full((1, 1), vocab['<start>'], dtype=torch.long).to(device)
+        # batchwise的greedy search
+        # 初始化输入句子：等batchsize的输入文本，以start开始
+        sentences_in = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
+        # bool张量用于给出哪一条句子已经生成完成（True），无需关注后续信息，填充pad
+        end_mask = torch.zeros(batch_size, dtype=torch.bool)
+        for i in range(max_len):  # 最长次循环次数
+            # 前向传播 imagecode (B,img_code_dim,embedsize) sentences_in (B,seqlength) ->
+            # out (B,seqlength,vocab_size) -> (B,1,vocab_size) 最后一列token
+            pred_next_word = self.decoder(image_codes, sentences_in)[:, -1, :]
+            # 贪婪策略只选择一个句子 不需要考虑概率
+            # 选出对应词汇 -> (B,1,) 词汇张量 返回整型张量 不需要换类型
+            pred_next_word = torch.argmax(pred_next_word, dim=2)
+            # 先填充padding 形状 -> (B,1,) 不变
+            pred_next_word[end_mask] = vocab['<pad>']
+            # 再拼接到sentences_in
+            sentences_in = torch.cat((sentences_in, pred_next_word), dim=1)
+            # 检查是否有句子新结束 end标识符
+            end_bool = pred_next_word.squeeze() == vocab['<end>']
+            # 最后修改mask，避免将之前的end填充为padding
+            end_mask = end_mask | end_bool  # 或操作，保留为True的部分
+        # 转换为list (B,maxlen) ->list of list
+        sentences_in = sentences_in.to_list()
+        sentences = []
+        # 将pad去除
+        for sen in sentences_in:
+            sen_filtered = [x for x in sen if x != vocab['<pad>']]
+            sentences.append(sen_filtered)
+        return sentences
 
-            while True:
-                # 获取mask矩阵
-                caps_padding_mask, caps_mask = gen_text_mask(sentences_in, vocab['<pad>'], device)
-                # 获取输出 1,n,vocab_size
-                logit = self.decoder(image_code, sentences_in, caps_padding_mask, caps_mask)
-                values,indices = logit[0].topk(1,dim=0)
-                #
-                pass
-        # TODO 加载数据使用
-
-        # TODO 未完成
-
-    def beam_search(self, images, beam_k, max_len, vocab_size, vocab):
+    def beam_search(self, images, beam_k, max_len, vocab):
+        """
+        返回list batchsize条结果list
+        :param images:
+        :param beam_k:
+        :param max_len:
+        :param vocab:
+        :return:
+        """
+        vocab_size = len(vocab)
         image_codes = self.encoder(images)  # (batchsize, 512, 64)
         texts = []
         device = images.device
