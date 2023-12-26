@@ -17,7 +17,8 @@ class Config:
         self.use_model_type = 'CNN_GRU'  # 'CNN_GRU' or 'CNN_Transformer'
         self.num_epoch = 4
         self.batch_size = 64
-        self.encoder_lr = 0.0001
+        self.eval_batch_size = 512
+        self.encoder_lr = 0.0002
         self.decoder_lr = 0.0005
 
         # 束搜索参数

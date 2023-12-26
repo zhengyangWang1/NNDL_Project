@@ -72,6 +72,9 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                                     "lr": config.encoder_lr},
                                    {"params": filter(lambda p: p.requires_grad, model.decoder.parameters()),
                                     "lr": config.decoder_lr}])
+    # https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html#torch.optim.lr_scheduler.ReduceLROnPlateau
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.5,patience=5,
+                                                           min_lr=1e-7,verbose=True)
     # 模型训练
     model.train()
     for epoch in range(config.num_epoch):
@@ -105,12 +108,14 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                     loss = criterion(predictions, sorted_captions[:, 1:], lengths)
                 # 累计损失
                 num_samples += imgs.size(0)
-                running_loss += loss.item()  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
+                running_loss += loss.item() * imgs.size(0)  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
                 l = loss.item()
                 # 反向传播
                 loss.backward()
                 optimizer.step()
                 # end = time.time()
+                # 学习率更新
+                scheduler.step(l)
                 # 进度条设置
                 pf = {'loss': f'{l:.4f}', }
                 t.set_postfix(pf)
@@ -137,19 +142,21 @@ def train(train_dataloader, test_dataloader, config: Config, ):
         }
         torch.save(checkpoint, os.path.join(save_dir, f'model_checkpoint{epoch}.pth'))
         logging.info('模型保存完成')
+        # 保存模型结构
+        with open(os.path.join(save_dir, 'model_structure.txt'), 'w') as f:  # 保存模型层级结构
+            f.write(str(model))
+        # 保存配置
+        config.model_checkpoint_path = os.path.join(save_dir, f'model_checkpoint{epoch}.pth')
+        config.save_config(os.path.join(save_dir, 'config.json'))
 
-    # 保存模型结构
-    with open(os.path.join(save_dir, 'model_structure.txt'), 'w') as f:  # 保存模型层级结构
-        f.write(str(model))
-    # 保存配置
-    config.save_config(os.path.join(save_dir, 'config.json'))
     # 保存日志
     logging.info('----------模型训练完成----------')
 
 
 # 测试beam search用
-def evaluation(test_loader, config: Config, vocab):
-    checkpoint = torch.load('checkpoints/12-25_00-45CNN_Transformer/model_checkpoint3.pth')
+def evaluation(test_loader, config: Config, ):
+    vocab, i2t = config.read_vocab()
+    checkpoint = torch.load('checkpoints/12-25_23-08CNN_Transformer/model_checkpoint2.pth')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # encoder = ResNetEncoder()
     # decoder = GRUDecoder(img_dim=config.CNN_GRU.img_dim,
@@ -170,29 +177,37 @@ def evaluation(test_loader, config: Config, vocab):
         for i, (imgs, caps, caplens) in enumerate(test_loader):
             # 通过束搜索，生成候选文本
             texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, config.vocab_size, vocab)
+            texts = [[i2t[s] for s in l] for l in texts]
             print(texts)
             input("按下回车键继续...")
 
 
-def evaluate(test_dataloader, config, model=None, model_path=None):
+def evaluate(test_dataloader, config, model=None, model_checkpoint_path=None):
     # 给定模型或者给出加载模型路径，否则报错
-    assert (model is None) ^ (model_path is None), '必须指定模型或者给出加载模型路径'
+    assert (model is None) ^ (model_checkpoint_path is None), '必须指定模型或者给出加载模型路径'
     # 设定运行设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # 日志
     logging.info('----------开始评估----------')
+    # 加载字典
+    vocab,_ = config.read_vocab()
     # 模型正常
     # TODO eval使用路径加载模型
-    if config.use_model_type == 'CNN_Transformer':
-        criterion = TokenCrossEntropyLoss(padding_index=0).to(device)
-        pass
-    elif config.use_model_type == 'CNN_GRU':
-        criterion = PackedCrossEntropyLoss().to(device)
-        pass
+    if model is None:
+        checkpoint = torch.load(model_checkpoint_path)
+        if config.use_model_type == 'CNN_Transformer':
+            criterion = TokenCrossEntropyLoss(padding_index=vocab['<pad>']).to(device)
+            model = CNNTransformerModel(vocab_size=config.vocab_size,
+                                        embed_size=config.CNN_Transformer.embed_size,
+                                        num_head=config.CNN_Transformer.num_head,
+                                        num_encoder_layer=config.CNN_Transformer.num_decoder,
+                                        num_decoder_layer=config.CNN_Transformer.num_decoder,
+                                        dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
+            model.load_state_dict(checkpoint['model'])
+        elif config.use_model_type == 'CNN_GRU':
+            criterion = PackedCrossEntropyLoss().to(device)
     model.to(device)
     logging.info('----------评估模型加载完成----------')
-    # 记载词典
-    vocab, _ = config.read_vocab()
     # 加载损失函数
     # criterion = PackedCrossEntropyLoss().to(device)
     model.eval()
@@ -221,7 +236,7 @@ def evaluate(test_dataloader, config, model=None, model_path=None):
                     loss = criterion(predictions, sorted_captions[:, 1:], lengths)
                 # 累计损失
                 num_samples += imgs.size(0)
-                running_loss += loss.item()  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
+                running_loss += loss.item() * imgs.size(0)  # 因为是pack_padded之后的张量loss算作是整个batchsize的张量
 
         average_loss = running_loss / num_samples
         # TODO 评估各种metrics指标

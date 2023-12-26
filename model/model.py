@@ -5,6 +5,7 @@ import torchinfo
 from .encoder import TransformerEncoder, ResNetEncoder
 from .decoder import TransformerDecoder, GRUDecoder
 from utils.gpu_mem_track import MemTracker
+from utils.data_loader import gen_text_mask
 import numpy as np
 
 
@@ -152,12 +153,27 @@ class CNNTransformerModel(nn.Module):
         # 贪婪搜索
         vocab_size = len(vocab)
         # 获取图像编码
-        image_code = self.encoder(images)  # (batchsize, 512, 64)
+        image_codes = self.encoder(images)  # (batchsize, 512, 64)
         batch_size = images.size(0)
         device = images.device
         # 创建等batchsize的输入文本，以start开始
-        text = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
+        # text = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
+        # 存储输出的句子
+        sentences_out = []
+        for image_code in image_codes:
+            # 每个句子
+            sentences_in = torch.full((1, 1), vocab['<start>'], dtype=torch.long).to(device)
+
+            while True:
+                # 获取mask矩阵
+                caps_padding_mask, caps_mask = gen_text_mask(sentences_in, vocab['<pad>'], device)
+                # 获取输出 1,n,vocab_size
+                logit = self.decoder(image_code, sentences_in, caps_padding_mask, caps_mask)
+                values,indices = logit[0].topk(1,dim=0)
+                #
+                pass
         # TODO 加载数据使用
+
         # TODO 未完成
 
     def beam_search(self, images, beam_k, max_len, vocab_size, vocab):
@@ -180,7 +196,7 @@ class CNNTransformerModel(nn.Module):
             k = beam_k  # k在找到一个句子之后减1
             while True:
                 # 第一次输入imagecode  (k,512,embedsize) text (k,seq_length) -> (k,seq_length, vocab_size)
-                preds = self.decoder(image_code[:k], cur_sents)[:, 0, :]  # TODO:fix 应该是-1 获取序列最后一个结果
+                preds = self.decoder(image_code[:k], cur_sents)[:, -1, :]  # TODO:fix 应该是-1 获取序列最后一个结果
                 #
                 # print(preds.shape)
                 preds = nn.functional.log_softmax(preds, dim=1)  # TODO 是否应该改成softmax
@@ -188,7 +204,7 @@ class CNNTransformerModel(nn.Module):
                 # -> (k, vocab_size)
                 # print('=====')
                 # print(probs.shape,preds.shape)
-                probs = probs.repeat(1, preds.size(1)) + preds  # (5, vocab_size) probs是preds的累加
+                probs = probs.repeat(1, preds.size(1)) + preds  # (5,seqlength, vocab_size) probs是preds的累加
                 if cur_sents.size(1) == 1:
                     # 第一步时，所有句子都只包含开始标识符，因此，仅利用其中一个句子计算topk
                     # 返回值和索引 两个张量

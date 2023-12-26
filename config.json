@@ -2,8 +2,9 @@
     "use_model_type": "CNN_Transformer",
     "num_epoch": 4,
     "batch_size": 64,
-    "encoder_lr": 0.0001,
-    "decoder_lr": 0.0003,
+    "eval_batch_size": 512,
+    "encoder_lr": 2e-4,
+    "decoder_lr": 5e-4,
     "beam_k": 5,
     "CNN_GRU": {
         "img_dim": 2048,
@@ -22,5 +23,6 @@
     "max_len": 25,
     "dataset_path": "data/deepfashion-mini",
     "vocab_path": "data/deepfashion-mini/vocab.json",
-    "model_checkpoint_path": null
+    "model_checkpoint_path": "checkpoints/12-25_23-08CNN_Transformer/model_checkpoint2.pth",
+    "saved_device_type": null
 }
