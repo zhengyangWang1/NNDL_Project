@@ -1,7 +1,9 @@
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-from nltk.translate.bleu_score import corpus_bleu
+from nltk.translate.bleu_score import corpus_bleu, sentence_bleu
+from nltk.translate.meteor_score import meteor_score
+from nltk.translate import meteor, bleu
 
 
 def filter_useless_words(sent, filterd_words):
@@ -50,24 +52,52 @@ def evaluate_metrics(eval_loader, model, config):
             for i, (imgs, caps, caplens) in t:
                 cnt += 1  # test
                 # 通过束搜索，生成候选文本 return 512条list的list
-                texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, vocab)
+                # texts = model.beam_search(imgs.to(device), config.beam_k, config.max_len + 2, vocab)
+                texts = model.greedy_search(imgs.to(device), config.max_len + 2, vocab)
                 # 候选文本 512条语句
                 hyps.extend([filter_useless_words(text, filterd_words) for text in texts])
                 # 参考文本 caps 是tensor 需要转换成list 512,7,25 转换成list
                 for cap in caps.tolist():  # cap是七条语句 循环512次
                     refs.append([filter_useless_words(c, filterd_words) for c in cap])
-                # if cnt >= 16:
+                # if cnt >= 1:
                 #     break  # test
     # 实际上，每个候选文本对应cpi条参考文本
-    # multiple_refs = []
-    # for idx in range(len(refs)):
-    #     multiple_refs.append(refs[(idx // cpi) * cpi: (idx // cpi) * cpi + cpi])
-    # 计算BLEU-4值，corpus_bleu函数默认weights权重为(0.25,0.25,0.25,0.25)
 
     # -------------------- 评估指标计算 --------------------
-    # 即计算1-gram到4-gram的BLEU几何平均值
+    print(len(refs), len(hyps))
+    print(len(refs[1]), len(hyps[1]))
+    # 形状 refs list 512batch list 7句子 list token
+    # hyps list 512batch list token
+    # TODO 转换为字符串类型计算
+    for sens in range(len(refs)):
+        for sen in range(len(refs[sens])):
+            for token in range(len(refs[sens][sen])):
+                refs[sens][sen][token] = i2t[refs[sens][sen][token]]
+    for sen in range(len(hyps)):
+        for token in range(len(hyps[sen])):
+            hyps[sen][token] = i2t[hyps[sen][token]]
+    print(hyps[1])
+    print(hyps[2])
+    print(hyps[3])
+    # bleu分数 0-1之间越大越好 1-gram到4-gram的BLEU几何平均值
     bleu4 = corpus_bleu(refs, hyps, weights=(0.25, 0.25, 0.25, 0.25))
-    # 其他评估指标实现，meteor,rouge-l,CIDEr-D,SPICE
+    # meteor分数
+    # TODO 需要下载wordnet
+    # import nltk
+    # nltk.download('wordnet')
+    meteor = 0
+    for i in range(len(refs)):
+        meteor += meteor_score(refs[i], hyps[i])
+    meteor = meteor / len(refs)
+    # 其他评估指标实现，rouge-l, CIDEr-D,SPICE 后两个比较重要
     model.train()
     print(f'Metric Score: bleu-4:{bleu4}')
+    print(f'Metric Score: meteor:{meteor}')
     return bleu4
+
+# def index_to_token_recurison(lst):
+#     for item in lst:
+#         if isinstance(item,list):
+#             index_to_token_recurison(item)
+#         elif isinstance(item,int):
+#

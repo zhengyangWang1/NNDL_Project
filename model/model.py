@@ -160,24 +160,26 @@ class CNNTransformerModel(nn.Module):
         # 初始化输入句子：等batchsize的输入文本，以start开始
         sentences_in = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
         # bool张量用于给出哪一条句子已经生成完成（True），无需关注后续信息，填充pad
-        end_mask = torch.zeros(batch_size, dtype=torch.bool)
+        end_mask = torch.zeros(batch_size, dtype=torch.bool).to(device)
         for i in range(max_len):  # 最长次循环次数
             # 前向传播 imagecode (B,img_code_dim,embedsize) sentences_in (B,seqlength) ->
-            # out (B,seqlength,vocab_size) -> (B,1,vocab_size) 最后一列token
+            # out (B,seqlength,vocab_size) -> (B,vocab_size) 最后一列token
             pred_next_word = self.decoder(image_codes, sentences_in)[:, -1, :]
             # 贪婪策略只选择一个句子 不需要考虑概率
-            # 选出对应词汇 -> (B,1,) 词汇张量 返回整型张量 不需要换类型
-            pred_next_word = torch.argmax(pred_next_word, dim=2)
+            # 选出对应词汇 -> (B,1) 词汇张量 返回整型张量 不需要换类型
+            # print(pred_next_word.shape)
+            pred_next_word = torch.argmax(pred_next_word, dim=1, keepdim=True)
             # 先填充padding 形状 -> (B,1,) 不变
             pred_next_word[end_mask] = vocab['<pad>']
             # 再拼接到sentences_in
+            # print(sentences_in.shape, pred_next_word.shape)
             sentences_in = torch.cat((sentences_in, pred_next_word), dim=1)
             # 检查是否有句子新结束 end标识符
             end_bool = pred_next_word.squeeze() == vocab['<end>']
             # 最后修改mask，避免将之前的end填充为padding
             end_mask = end_mask | end_bool  # 或操作，保留为True的部分
         # 转换为list (B,maxlen) ->list of list
-        sentences_in = sentences_in.to_list()
+        sentences_in = sentences_in.tolist()
         sentences = []
         # 将pad去除
         for sen in sentences_in:

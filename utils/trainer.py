@@ -73,7 +73,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                                    {"params": filter(lambda p: p.requires_grad, model.decoder.parameters()),
                                     "lr": config.decoder_lr}])
     # https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html#torch.optim.lr_scheduler.ReduceLROnPlateau
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.5,patience=10,
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.5,patience=20,
                                                            min_lr=1e-7,verbose=True)
     # 模型训练
     model.train()
