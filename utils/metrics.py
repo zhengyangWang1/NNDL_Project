@@ -94,6 +94,15 @@ def evaluate_metrics(eval_loader, model, config):
         eval_hyps.append(''.join(hyps[sen]))
     # TODO 检查
 
+    # 保存为文件
+    for sen in range(len(eval_refs)):
+        with open(f"refs{sen}.txt",'w+') as f:
+            for sentence in eval_refs[sen]:
+                f.write(sentence)
+    with open(f"hyps.txt", 'w+') as f:
+        for sentence in eval_hyps:
+            f.write(sentence)
+
     # TODO
     # from nlgeval import NLGEval
     nlgeval = NLGEval()  # loads the models
@@ -118,6 +127,6 @@ def evaluate_metrics(eval_loader, model, config):
     # model.train()
     # print(f'Metric Score: bleu-4:{bleu4}')
     # print(f'Metric Score: meteor:{meteor}')
-    return bleu4
+    return metrics_dict
 
 

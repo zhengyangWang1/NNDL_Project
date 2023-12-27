@@ -22,7 +22,7 @@ if __name__ == '__main__':
                                                config.eval_batch_size,
                                                workers=0)
     # 模型训练
-    train(train_loader, test_loader, config)
+    # train(train_loader, test_loader, config)
     # evaluate(test_loader, config, model_checkpoint_path='checkpoints/12-25_23-08CNN_Transformer/model_checkpoint2.pth')
 
     # 生成句子测试
