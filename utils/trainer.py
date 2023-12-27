@@ -73,7 +73,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                                    {"params": filter(lambda p: p.requires_grad, model.decoder.parameters()),
                                     "lr": config.decoder_lr}])
     # https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html#torch.optim.lr_scheduler.ReduceLROnPlateau
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.5,patience=20,
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.3,patience=100,
                                                            min_lr=1e-7,verbose=True)
     # 模型训练
     model.train()
@@ -86,8 +86,10 @@ def train(train_dataloader, test_dataloader, config: Config, ):
             'mininterval': 0.5,
             'dynamic_ncols': True,
         }
+        # test_n=0
         with tqdm(enumerate(train_dataloader), **tqdm_param, desc='Train') as t:
             for i, (imgs, caps, caplens) in t:
+                # test_n+=1
                 # 清空优化器梯度
                 optimizer.zero_grad()
                 # 设备转移
@@ -119,6 +121,8 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                 # 进度条设置
                 pf = {'loss': f'{l:.4f}', }
                 t.set_postfix(pf)
+                # if test_n >=1:
+                #     break
                 if i % 30 == 0:  # 日志记录
                     log_string = f'Iter {i:>5}: Loss {l:.4f}'
                     # log_string = f'Iter {i:>5}: Loss {l:.4f}|Transfer data :{forward_start - transfer_start:.2f}s|Forward :{end - forward_start:.2f}s|'
@@ -132,7 +136,8 @@ def train(train_dataloader, test_dataloader, config: Config, ):
             logging.info(log_string)
 
         # 每个epoch之后测试模型
-        evaluate(test_dataloader, config, model)
+        torch.cuda.empty_cache() #
+        evaluate(test_dataloader, config, model=model)
         model.train()
         # 在每个epoch结束时保存
         checkpoint = {
@@ -204,6 +209,11 @@ def evaluate(test_dataloader, config, model=None, model_checkpoint_path=None):
                                         num_decoder_layer=config.CNN_Transformer.num_decoder,
                                         dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
             model.load_state_dict(checkpoint['model'])
+        elif config.use_model_type == 'CNN_GRU':
+            criterion = PackedCrossEntropyLoss().to(device)
+    else:
+        if config.use_model_type == 'CNN_Transformer':
+            criterion = TokenCrossEntropyLoss(padding_index=vocab['<pad>']).to(device)
         elif config.use_model_type == 'CNN_GRU':
             criterion = PackedCrossEntropyLoss().to(device)
     model.to(device)

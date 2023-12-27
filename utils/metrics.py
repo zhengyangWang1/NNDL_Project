@@ -4,7 +4,7 @@ from tqdm import tqdm
 from nltk.translate.bleu_score import corpus_bleu, sentence_bleu
 from nltk.translate.meteor_score import meteor_score
 from nltk.translate import meteor, bleu
-
+from nlgeval.nlgeval import NLGEval
 
 def filter_useless_words(sent, filterd_words):
     # 去除句子中不参与BLEU值计算的符号

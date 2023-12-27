@@ -2,7 +2,7 @@
     "use_model_type": "CNN_Transformer",
     "num_epoch": 4,
     "batch_size": 64,
-    "eval_batch_size": 512,
+    "eval_batch_size": 64,
     "encoder_lr": 2e-4,
     "decoder_lr": 5e-4,
     "beam_k": 5,
