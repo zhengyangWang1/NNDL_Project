@@ -28,8 +28,6 @@ get_data_loader: 将预处理的数据定义为train_loader和test_loader
 import nltk
 
 
-# nltk.download('punkt')
-
 def data_preprocess(data_file='data/deepfashion-mini', min_word_freq=5, captions_per_image=7, max_len=25):
     """
     :param data_file: 数据集根目录(输入数据：12694张图片，训练集和测试集的json文件(10155, 2538)，json中包含{图片名：描述})
@@ -100,7 +98,7 @@ def data_preprocess(data_file='data/deepfashion-mini', min_word_freq=5, captions
                     sentences.append(random.choice(sentences))
                 captions = sentences
             else:
-                # 如果该图片对应的描述数量超了，则随机采样
+                # 如果该图片对应的描述数量超了，则随机下采样 会导致同一个顺序混乱
                 captions = random.sample(sentences, k=captions_per_image)
 
             # 对文本描述进行编码
@@ -114,6 +112,9 @@ def data_preprocess(data_file='data/deepfashion-mini', min_word_freq=5, captions
 
     train_img_paths, train_sequences = process(train_data)
     test_img_paths, test_sequences = process(test_data)
+
+    print(len(train_img_paths), len(train_sequences))
+    print(len(test_img_paths), len(test_sequences))
 
     train_data = {'IMAGES': train_img_paths, 'CAPTIONS': train_sequences}
     test_data = {'IMAGES': test_img_paths, 'CAPTIONS': test_sequences}
@@ -171,12 +172,59 @@ class CustomDataset(Dataset):
         # print([self.vocab['<pad>']] * (self.max_len - caplen))
         caption = torch.LongTensor(self.data['CAPTIONS'][i] + [self.vocab['<pad>']] * (self.max_len - caplen))
 
-        # batch_size,3,224,224  batch_size,25  batch_size
+        # 3,224,224  25  1 ->
         return img, caption, caplen
 
 
-def get_dataloader(data_dir, batch_size, workers=4):
+class EvalDataset(Dataset):
+    def __init__(self, data_path, vocab_path, captions_per_image=7, max_len=25, transform=None):
+        """
+        :param data_path: 预处理好的数据文件路径
+        :param vocab_path: 词典文件路径
+        :param captions_per_image: 每张图片对应的文本描述数
+        :param max_len: 文本包含最大单词数
+        :param transform: 需要进行的图片预处理操作
+        """
+        # 读取train/test_data.json
+        with open(data_path, 'r') as file:
+            self.data = json.load(file)
+        # 读取词典vocab.json
+        with open(vocab_path, 'r') as file:
+            self.vocab = json.load(file)
+        self.transform = transform
+        self.caption_per_image = captions_per_image
+        self.max_len = max_len
+        self.data_size = len(self.data['IMAGES'])  # 定义为caption的描述
+
+    def __len__(self):
+        return self.data_size
+
+    def __getitem__(self, i):
+        # 读取图像 一个图像对应caption_per_image条句子
+        # img = Image.open(self.data['IMAGES'][i // self.caption_per_image]).convert('RGB')
+        img = Image.open(self.data['IMAGES'][i]).convert('RGB')
+        # 图像预处理
+        if self.transform is not None:
+            img = self.transform(img)
+
+        caplens = []
+        captions = []
+
+        for j in range(self.caption_per_image):
+            caplen = len(self.data['CAPTIONS'][i * 7 + j])
+            captions.append(
+                torch.LongTensor(self.data['CAPTIONS'][i * 7 + j] + [self.vocab['<pad>']] * (self.max_len - caplen)))
+            caplens.append(caplen)
+
+        captions = torch.stack(captions)
+
+        # 3,224,224:torch.Float  7,25:torch.LongTensor   7:list
+        return img, captions, caplens
+
+
+def get_dataloader(data_dir, batch_size, eval_batch_size, workers=4):
     """
+    :param eval_batch_size:  评估批处理量
     :param data_dir: 数据集根目录
     :param batch_size: 批处理量
     :param workers: 进程数，默认为4
@@ -201,14 +249,19 @@ def get_dataloader(data_dir, batch_size, workers=4):
     # 创建训练和测试数据集对象
     train_dataset = CustomDataset(train_data_dir, vocab_dir, transform=transform)
     test_dataset = CustomDataset(test_data_dir, vocab_dir, transform=transform)
+    eval_dataset = EvalDataset(test_data_dir, vocab_dir, transform=transform)
 
     # 创建dataloader
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=workers)
     test_loader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=False, num_workers=workers)
+        test_dataset, batch_size=eval_batch_size, shuffle=False, num_workers=workers)
 
-    return train_loader, test_loader
+    # 测试拆分数据集
+    eval_loader = torch.utils.data.DataLoader(
+        eval_dataset, batch_size=eval_batch_size, shuffle=False, num_workers=workers)
+
+    return train_loader, test_loader, eval_loader
 
 
 def gen_text_mask(text, pad, device):
@@ -228,28 +281,31 @@ def signal_handler(signum, frame):
 if __name__ == '__main__':
     pass
     # 在项目根目录运行
-    # data_process()
+    # data_preprocess()
 
 
     # 测试
-    # tqdm_param = {
-    #     'total': len(train_loader),
-    #     'mininterval': 0.5,
-    #     # 'miniters': 3,
-    #     # 'unit':'iter',
-    #     'dynamic_ncols': True,
-    #     # 'desc':'Training',
-    #     # 'postfix':'final'
-    # }
-    # with tqdm(enumerate(train_loader), **tqdm_param, desc='Training') as t:
-    #     for i, (imgs, caps, caplens) in t:
-    #         pf = {
-    #             'i': i,
-    #             'loss': 0.12,
-    #             'acc': 0.33
-    #         }
-    #         print(imgs.shape, caps.shape, caplens.shape)
-    #         t.set_postfix(pf)
+    train_loader, test_loader, eval_loader = get_dataloader("data/deepfashion-mini", 64, 512, 0)
+    tqdm_param = {
+        'total': len(eval_loader),
+        'mininterval': 0.5,
+        # 'miniters': 3,
+        # 'unit':'iter',
+        'dynamic_ncols': True,
+        # 'desc':'Training',
+        # 'postfix':'final'
+    }
+    with tqdm(enumerate(eval_loader), **tqdm_param, desc='Training') as t:
+        for i, (imgs, caps, caplens) in t:
+            pf = {
+                'i': i,
+                'loss': 0.12,
+                'acc': 0.33
+            }
+            print(imgs.shape, caps.shape, len(caplens))
+            input('waiting ')
+            t.set_postfix(pf)
+
     # ------------------------------------------------------------------
     # # 图片处理测试
     # custom_transform = transforms.Compose([

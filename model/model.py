@@ -5,6 +5,7 @@ import torchinfo
 from .encoder import TransformerEncoder, ResNetEncoder
 from .decoder import TransformerDecoder, GRUDecoder
 from utils.gpu_mem_track import MemTracker
+from utils.data_loader import gen_text_mask
 import numpy as np
 
 
@@ -152,15 +153,50 @@ class CNNTransformerModel(nn.Module):
         # 贪婪搜索
         vocab_size = len(vocab)
         # 获取图像编码
-        image_code = self.encoder(images)  # (batchsize, 512, 64)
+        image_codes = self.encoder(images)  # (batchsize, 512, 64)
         batch_size = images.size(0)
         device = images.device
-        # 创建等batchsize的输入文本，以start开始
-        text = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
-        # TODO 加载数据使用
-        # TODO 未完成
+        # batchwise的greedy search
+        # 初始化输入句子：等batchsize的输入文本，以start开始
+        sentences_in = torch.full((batch_size, 1), vocab['<start>'], dtype=torch.long).to(device)
+        # bool张量用于给出哪一条句子已经生成完成（True），无需关注后续信息，填充pad
+        end_mask = torch.zeros(batch_size, dtype=torch.bool).to(device)
+        for i in range(max_len):  # 最长次循环次数
+            # 前向传播 imagecode (B,img_code_dim,embedsize) sentences_in (B,seqlength) ->
+            # out (B,seqlength,vocab_size) -> (B,vocab_size) 最后一列token
+            pred_next_word = self.decoder(image_codes, sentences_in)[:, -1, :]
+            # 贪婪策略只选择一个句子 不需要考虑概率
+            # 选出对应词汇 -> (B,1) 词汇张量 返回整型张量 不需要换类型
+            # print(pred_next_word.shape)
+            pred_next_word = torch.argmax(pred_next_word, dim=1, keepdim=True)
+            # 先填充padding 形状 -> (B,1,) 不变
+            pred_next_word[end_mask] = vocab['<pad>']
+            # 再拼接到sentences_in
+            # print(sentences_in.shape, pred_next_word.shape)
+            sentences_in = torch.cat((sentences_in, pred_next_word), dim=1)
+            # 检查是否有句子新结束 end标识符
+            end_bool = pred_next_word.squeeze() == vocab['<end>']
+            # 最后修改mask，避免将之前的end填充为padding
+            end_mask = end_mask | end_bool  # 或操作，保留为True的部分
+        # 转换为list (B,maxlen) ->list of list
+        sentences_in = sentences_in.tolist()
+        sentences = []
+        # 将pad去除
+        for sen in sentences_in:
+            sen_filtered = [x for x in sen if x != vocab['<pad>']]
+            sentences.append(sen_filtered)
+        return sentences
 
-    def beam_search(self, images, beam_k, max_len, vocab_size, vocab):
+    def beam_search(self, images, beam_k, max_len, vocab):
+        """
+        返回list batchsize条结果list
+        :param images:
+        :param beam_k:
+        :param max_len:
+        :param vocab:
+        :return:
+        """
+        vocab_size = len(vocab)
         image_codes = self.encoder(images)  # (batchsize, 512, 64)
         texts = []
         device = images.device
@@ -180,7 +216,7 @@ class CNNTransformerModel(nn.Module):
             k = beam_k  # k在找到一个句子之后减1
             while True:
                 # 第一次输入imagecode  (k,512,embedsize) text (k,seq_length) -> (k,seq_length, vocab_size)
-                preds = self.decoder(image_code[:k], cur_sents)[:, 0, :]  # TODO:fix 应该是-1 获取序列最后一个结果
+                preds = self.decoder(image_code[:k], cur_sents)[:, -1, :]  # TODO:fix 应该是-1 获取序列最后一个结果
                 #
                 # print(preds.shape)
                 preds = nn.functional.log_softmax(preds, dim=1)  # TODO 是否应该改成softmax
@@ -188,7 +224,7 @@ class CNNTransformerModel(nn.Module):
                 # -> (k, vocab_size)
                 # print('=====')
                 # print(probs.shape,preds.shape)
-                probs = probs.repeat(1, preds.size(1)) + preds  # (5, vocab_size) probs是preds的累加
+                probs = probs.repeat(1, preds.size(1)) + preds  # (5,seqlength, vocab_size) probs是preds的累加
                 if cur_sents.size(1) == 1:
                     # 第一步时，所有句子都只包含开始标识符，因此，仅利用其中一个句子计算topk
                     # 返回值和索引 两个张量
