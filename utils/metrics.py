@@ -6,6 +6,7 @@ from nltk.translate.meteor_score import meteor_score
 from nltk.translate import meteor, bleu
 from nlgeval.nlgeval import NLGEval
 
+
 def filter_useless_words(sent, filterd_words):
     # 去除句子中不参与BLEU值计算的符号
     return [w for w in sent if w not in filterd_words]
@@ -76,28 +77,47 @@ def evaluate_metrics(eval_loader, model, config):
     for sen in range(len(hyps)):
         for token in range(len(hyps[sen])):
             hyps[sen][token] = i2t[hyps[sen][token]]
-    print(hyps[1])
-    print(hyps[2])
-    print(hyps[3])
-    # bleu分数 0-1之间越大越好 1-gram到4-gram的BLEU几何平均值
-    bleu4 = corpus_bleu(refs, hyps, weights=(0.25, 0.25, 0.25, 0.25))
-    # meteor分数
-    # TODO 需要下载wordnet
-    # import nltk
-    # nltk.download('wordnet')
-    meteor = 0
-    for i in range(len(refs)):
-        meteor += meteor_score(refs[i], hyps[i])
-    meteor = meteor / len(refs)
-    # 其他评估指标实现，rouge-l, CIDEr-D,SPICE 后两个比较重要
-    model.train()
-    print(f'Metric Score: bleu-4:{bleu4}')
-    print(f'Metric Score: meteor:{meteor}')
+    # 转换为nlgeval需要的格式
+    # ref = [reflist1,reflist2,...,reflist7] # 在字符串列表 不是token列表 去掉空格的列表
+    # hyp = []
+    # hyp_list = hyp
+    # ref_list = [ref1, ref2]
+    # res = nlge.compute_metrics(ref_list, hyp_list)
+    eval_refs = []
+    for sen in range(len(refs[0])):
+        eval_refs.append([]) # 创建caption_per_image个空列表供后续使用
+    for sens in range(len(refs)): # 遍历所有样本 每条样本有七条句子
+        for sen in range(len(refs[0])): # 遍历七条句子 将句子转换为字符串加入到评估列表中
+            eval_refs[sen].append(''.join(refs[sens][sen])) # 将字符串列表合并为在一起的字符串
+    eval_hyps=[]
+    for sen in range(len(hyps)):
+        eval_hyps.append(''.join(hyps[sen]))
+    # TODO 检查
+
+    # TODO
+    # from nlgeval import NLGEval
+    nlgeval = NLGEval()  # loads the models
+    metrics_dict = nlgeval.compute_metrics(eval_refs, eval_hyps)
+    print(f'Metrics Score:\n')
+    print(metrics_dict)
+
+    # print(hyps[1])
+    # print(hyps[2])
+    # print(hyps[3])
+    # # bleu分数 0-1之间越大越好 1-gram到4-gram的BLEU几何平均值
+    # bleu4 = corpus_bleu(refs, hyps, weights=(0.25, 0.25, 0.25, 0.25))
+    # # meteor分数
+    # # TODO 需要下载wordnet
+    # # import nltk
+    # # nltk.download('wordnet')
+    # meteor = 0
+    # for i in range(len(refs)):
+    #     meteor += meteor_score(refs[i], hyps[i])
+    # meteor = meteor / len(refs)
+    # # 其他评估指标实现，rouge-l, CIDEr-D,SPICE 后两个比较重要
+    # model.train()
+    # print(f'Metric Score: bleu-4:{bleu4}')
+    # print(f'Metric Score: meteor:{meteor}')
     return bleu4
 
-# def index_to_token_recurison(lst):
-#     for item in lst:
-#         if isinstance(item,list):
-#             index_to_token_recurison(item)
-#         elif isinstance(item,int):
-#
+
