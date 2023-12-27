@@ -13,7 +13,6 @@ from PIL import Image
 from torchvision import transforms
 from nltk.tokenize import sent_tokenize, word_tokenize
 
-# from nltk.corpus import brown,
 
 """
 # 读取数据，预处理数据

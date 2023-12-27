@@ -6,6 +6,7 @@ from utils.data_loader import get_dataloader, data_preprocess
 from utils.config import Config
 from model.model import CNNTransformerModel
 from utils.metrics import evaluate_metrics
+# from nlgeval.nlgeval
 
 # nltk.download('punkt')
 

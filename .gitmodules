@@ -1,0 +1,4 @@
+
+[submodule "nlgeval"]
+	path = nlgeval
+	url = git@github.com:Sparidae/nlg-eval.git
