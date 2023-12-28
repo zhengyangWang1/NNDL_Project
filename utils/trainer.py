@@ -73,7 +73,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                                    {"params": filter(lambda p: p.requires_grad, model.decoder.parameters()),
                                     "lr": config.decoder_lr}])
     # https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html#torch.optim.lr_scheduler.ReduceLROnPlateau
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.3,patience=100,
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.3,patience=500,
                                                            min_lr=1e-7,verbose=True)
     # 模型训练
     model.train()
@@ -123,7 +123,7 @@ def train(train_dataloader, test_dataloader, config: Config, ):
                 t.set_postfix(pf)
                 # if test_n >=1:
                 #     break
-                if i % 30 == 0:  # 日志记录
+                if i % 10 == 0:  # 日志记录
                     log_string = f'Iter {i:>5}: Loss {l:.4f}'
                     # log_string = f'Iter {i:>5}: Loss {l:.4f}|Transfer data :{forward_start - transfer_start:.2f}s|Forward :{end - forward_start:.2f}s|'
                     logging.info(log_string)
