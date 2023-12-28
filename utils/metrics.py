@@ -6,7 +6,7 @@ from nltk.translate.bleu_score import corpus_bleu, sentence_bleu
 from nltk.translate.meteor_score import meteor_score
 from nltk.translate import meteor, bleu
 from nlgeval import NLGEval
-
+from pprint import pprint
 
 def filter_useless_words(sent, filterd_words):
     # 去除句子中不参与BLEU值计算的符号
@@ -98,13 +98,14 @@ def evaluate_metrics(eval_loader, model, config):
     # TODO 检查
 
     # 保存为文件
+    os.makedirs('data/textout', exist_ok=True)
     for sen in range(len(eval_refs)):
-        with open(f"refs{sen}.txt", 'w+') as f:
+        with open(f"data/textout/refs{sen}.txt", 'w+') as f:
             for sentence in eval_refs[sen]:
-                f.write(sentence+'\n')
-    with open(f"hyps.txt", 'w+') as f:
+                f.write(sentence + '\n')
+    with open(f"data/textout/hyps.txt", 'w+') as f:
         for sentence in eval_hyps:
-            f.write(sentence+'\n')
+            f.write(sentence + '\n')
 
     # TODO
     # from nlgeval import NLGEval
@@ -142,19 +143,23 @@ def metrics_calc(text_path):
     # eval_hyps = []
 
     eval_refs = []
-    with open(os.path.join(text_path,'hyps.txt')) as f:
+    with open(os.path.join(text_path, 'hyps.txt')) as f:
         hyps = f.readlines()
         eval_hyps = [x.strip() for x in hyps]
     for i in range(cnt):
-        with open(os.path.join(text_path,f'refs{i}.txt')) as f:
+        with open(os.path.join(text_path, f'refs{i}.txt')) as f:
             refs = f.readlines()
             eval_refs.append([x.strip() for x in refs])
 
-    nlgeval = NLGEval(no_glove=True,)  # loads the models
+    # num_eval = 2530
+    # eval_hyps = eval_hyps[:num_eval]
+    # eval_refs = [x[:num_eval] for x in eval_refs]
+
+    nlgeval = NLGEval(no_glove=True,no_skipthoughts=True)  # loads the models
     metrics_dict = nlgeval.compute_metrics(eval_refs,
                                            eval_hyps,
                                            )
     # noglove
-    print(f'Metrics Score:\n')
-    print(metrics_dict)
+    print(f'Metrics Score:')
+    pprint(metrics_dict)
     return metrics_dict

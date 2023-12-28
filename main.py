@@ -4,10 +4,9 @@ import torch
 from utils.trainer import train, evaluate, evaluation
 from utils.data_loader import get_dataloader, data_preprocess
 from utils.config import Config
-from model.model import CNNTransformerModel
 from utils.metrics import evaluate_metrics,metrics_calc
-# from nlgeval.nlgeval
 
+# from nlgeval.nlgeval
 # nltk.download('punkt')
 
 
@@ -22,7 +21,7 @@ if __name__ == '__main__':
                                                config.eval_batch_size,
                                                workers=0)
     # 模型训练
-    train(train_loader, test_loader, config)
+    # train(train_loader, test_loader, config)
     # evaluate(test_loader, config, model_checkpoint_path='checkpoints/12-25_23-08CNN_Transformer/model_checkpoint2.pth')
 
     # 生成句子测试
@@ -42,4 +41,4 @@ if __name__ == '__main__':
     # model.eval()
     # evaluate_metrics(eval_loader,model,config)
 
-    # metrics_calc('data/textout')
+    metrics_calc('data/textout')
