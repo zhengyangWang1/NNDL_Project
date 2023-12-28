@@ -10,7 +10,35 @@
 
 ```bash
 conda create -n nndlexp python=3.7.16
-pip install -r requirments
+pip install -r requirments.txt
+pip install -r nnlgeval/requirments.txt
+
+```
+
+资源下载
+
+java 1.8+
+```bash
+yum -y list java*
+# 示例
+yum install -y java-1.8.0-openjdk-devel.aarch64
+
+# debian
+apt-get update
+apt-cache search openjdk
+# 示例
+apt-get install openjdk-8-jdk
+```
+
+评估资源下载，可能会出现网络问题，更换文件中代理链接可以解决
+```bash
+python3 nlgeval/resource_download.py
+```
+
+nltk语料库下载
+```python
+import nltk
+nltk.download('punkt')
 ```
 
 # 项目结构

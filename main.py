@@ -5,7 +5,7 @@ from utils.trainer import train, evaluate, evaluation
 from utils.data_loader import get_dataloader, data_preprocess
 from utils.config import Config
 from model.model import CNNTransformerModel
-from utils.metrics import evaluate_metrics
+from utils.metrics import evaluate_metrics,metrics_calc
 # from nlgeval.nlgeval
 
 # nltk.download('punkt')
@@ -30,13 +30,16 @@ if __name__ == '__main__':
 
     # 加载config和模型
     # config.read_config('config.json')
-    checkpoint = torch.load('checkpoints/12-25_23-08CNN_Transformer/model_checkpoint2.pth')
-    model = CNNTransformerModel(vocab_size=config.vocab_size,
-                                embed_size=config.CNN_Transformer.embed_size,
-                                num_head=config.CNN_Transformer.num_head,
-                                num_encoder_layer=config.CNN_Transformer.num_decoder,
-                                num_decoder_layer=config.CNN_Transformer.num_decoder,
-                                dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
-    model.load_state_dict(checkpoint['model'])
-    model.eval()
-    evaluate_metrics(eval_loader,model,config)
+
+    # checkpoint = torch.load('checkpoints/12-25_23-08CNN_Transformer/model_checkpoint2.pth')
+    # model = CNNTransformerModel(vocab_size=config.vocab_size,
+    #                             embed_size=config.CNN_Transformer.embed_size,
+    #                             num_head=config.CNN_Transformer.num_head,
+    #                             num_encoder_layer=config.CNN_Transformer.num_decoder,
+    #                             num_decoder_layer=config.CNN_Transformer.num_decoder,
+    #                             dim_ff=config.CNN_Transformer.dim_ff, ).to(device)
+    # model.load_state_dict(checkpoint['model'])
+    # model.eval()
+    # evaluate_metrics(eval_loader,model,config)
+
+    # metrics_calc('data/textout')

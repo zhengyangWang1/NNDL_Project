@@ -1,10 +1,11 @@
+import os
 import torch
 import torch.nn as nn
 from tqdm import tqdm
 from nltk.translate.bleu_score import corpus_bleu, sentence_bleu
 from nltk.translate.meteor_score import meteor_score
 from nltk.translate import meteor, bleu
-from nlgeval.nlgeval import NLGEval
+from nlgeval import NLGEval
 
 
 def filter_useless_words(sent, filterd_words):
@@ -83,23 +84,34 @@ def evaluate_metrics(eval_loader, model, config):
     # hyp_list = hyp
     # ref_list = [ref1, ref2]
     # res = nlge.compute_metrics(ref_list, hyp_list)
+    # 去除标点
+    filter_words = {',', '.', }
     eval_refs = []
     for sen in range(len(refs[0])):
-        eval_refs.append([]) # 创建caption_per_image个空列表供后续使用
-    for sens in range(len(refs)): # 遍历所有样本 每条样本有七条句子
-        for sen in range(len(refs[0])): # 遍历七条句子 将句子转换为字符串加入到评估列表中
-            eval_refs[sen].append(''.join(refs[sens][sen])) # 将字符串列表合并为在一起的字符串
-    eval_hyps=[]
+        eval_refs.append([])  # 创建caption_per_image个空列表供后续使用
+    for sens in range(len(refs)):  # 遍历所有样本 每条样本有七条句子
+        for sen in range(len(refs[0])):  # 遍历七条句子 将句子转换为字符串加入到评估列表中
+            eval_refs[sen].append(' '.join([x for x in refs[sens][sen] if x not in filter_words]))  # 将字符串列表合并为在一起的字符串
+    eval_hyps = []
     for sen in range(len(hyps)):
-        eval_hyps.append(''.join(hyps[sen]))
+        eval_hyps.append(' '.join([x for x in hyps[sen] if x not in filter_words]))
     # TODO 检查
+
+    # 保存为文件
+    for sen in range(len(eval_refs)):
+        with open(f"refs{sen}.txt", 'w+') as f:
+            for sentence in eval_refs[sen]:
+                f.write(sentence+'\n')
+    with open(f"hyps.txt", 'w+') as f:
+        for sentence in eval_hyps:
+            f.write(sentence+'\n')
 
     # TODO
     # from nlgeval import NLGEval
-    nlgeval = NLGEval()  # loads the models
-    metrics_dict = nlgeval.compute_metrics(eval_refs, eval_hyps)
-    print(f'Metrics Score:\n')
-    print(metrics_dict)
+    # nlgeval = NLGEval()  # loads the models
+    # metrics_dict = nlgeval.compute_metrics(eval_refs, eval_hyps)
+    # print(f'Metrics Score:\n')
+    # print(metrics_dict)
 
     # print(hyps[1])
     # print(hyps[2])
@@ -118,6 +130,31 @@ def evaluate_metrics(eval_loader, model, config):
     # model.train()
     # print(f'Metric Score: bleu-4:{bleu4}')
     # print(f'Metric Score: meteor:{meteor}')
-    return bleu4
+    # return metrics_dict
 
 
+def metrics_calc(text_path):
+    cnt = 0
+    prefix = 'ref'
+    for filename in os.listdir(text_path):
+        if filename.startswith(prefix):
+            cnt += 1
+    # eval_hyps = []
+
+    eval_refs = []
+    with open(os.path.join(text_path,'hyps.txt')) as f:
+        hyps = f.readlines()
+        eval_hyps = [x.strip() for x in hyps]
+    for i in range(cnt):
+        with open(os.path.join(text_path,f'refs{i}.txt')) as f:
+            refs = f.readlines()
+            eval_refs.append([x.strip() for x in refs])
+
+    nlgeval = NLGEval(no_glove=True,)  # loads the models
+    metrics_dict = nlgeval.compute_metrics(eval_refs,
+                                           eval_hyps,
+                                           )
+    # noglove
+    print(f'Metrics Score:\n')
+    print(metrics_dict)
+    return metrics_dict
